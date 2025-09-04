@@ -4,16 +4,16 @@ import type { LadderQuery, WhereCondition } from '~~/server/interfaces/ladder'
 
 defineRouteMeta({
   openAPI: {
-    description: 'Ладдер игроков по MMR с поддержкой фильтрации по имени, выбором модификации и типа рейтинга (solo/team), сортировкой, фильтром по серверу и пагинацией.',
+    description: 'Players ladder by MMR with support for name search, mod and rating type (solo/team) selection, sorting, server filter, and pagination.',
     parameters: [
-      { in: 'query', name: 'mod', required: true, description: 'ID мода (mod_id) для построения ладдера', schema: { type: 'integer' } },
-      { in: 'query', name: 'season', required: false, description: 'Явно указанный ID сезона. Если не передан — используется активный, иначе — последний доступный.', schema: { type: 'integer' } },
-      { in: 'query', name: 'mmrType', required: false, description: "Тип рейтинга: 'solo' или 'team' (по умолчанию 'solo')", schema: { type: 'string', enum: ['solo', 'team'] } },
-      { in: 'query', name: 'search', required: false, description: 'Поиск по имени игрока или его последним никнеймам', schema: { type: 'string' } },
-      { in: 'query', name: 'sort', required: false, description: "Направление сортировки по MMR: 'desc' (по умолчанию) или 'asc'", schema: { type: 'string', enum: ['asc', 'desc'] } },
-      { in: 'query', name: 'server', required: false, description: 'ID сервера (steam/dowonline)', schema: { type: 'integer' } },
-      { in: 'query', name: 'page', required: false, description: 'Номер страницы (>=1)', schema: { type: 'integer' } },
-      { in: 'query', name: 'pageSize', required: false, description: 'Размер страницы (1..200)', schema: { type: 'integer' } },
+      { in: 'query', name: 'mod', required: true, description: 'Mod ID (mod_id) used to build the ladder', schema: { type: 'integer' } },
+      { in: 'query', name: 'season', required: false, description: 'Explicit season ID. If not provided — the active season is used, otherwise — the latest available.', schema: { type: 'integer' } },
+      { in: 'query', name: 'mmrType', required: false, description: "Rating type: 'solo' or 'team' (default 'solo')", schema: { type: 'string', enum: ['solo', 'team'] } },
+      { in: 'query', name: 'search', required: false, description: 'Search by player name or their recent nicknames', schema: { type: 'string' } },
+      { in: 'query', name: 'sort', required: false, description: "Sort direction by MMR: 'desc' (default) or 'asc'", schema: { type: 'string', enum: ['asc', 'desc'] } },
+      { in: 'query', name: 'server', required: false, description: 'Server ID (steam/dowonline)', schema: { type: 'integer' } },
+      { in: 'query', name: 'page', required: false, description: 'Page number (>=1)', schema: { type: 'integer' } },
+      { in: 'query', name: 'pageSize', required: false, description: 'Page size (1..200)', schema: { type: 'integer' } },
     ],
   },
 })

@@ -2,10 +2,10 @@
 
 defineRouteMeta({
   openAPI: {
-    description: 'Список доступных модов (только видимые).',
+    description: 'List of available mods (only visible ones).',
     responses: {
       200: {
-        description: 'Успешный ответ',
+        description: 'Successful response',
       },
     },
   },

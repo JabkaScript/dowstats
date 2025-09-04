@@ -2,9 +2,9 @@ import { desc } from 'drizzle-orm'
 
 defineRouteMeta({
   openAPI: {
-    description: 'Список сезонов. Активный сезон помечен полем isActive = 1.',
+    description: 'List of seasons. The active season is marked with isActive = 1.',
     responses: {
-      200: { description: 'Успешный ответ' },
+      200: { description: 'Successful response' },
     },
   },
 })

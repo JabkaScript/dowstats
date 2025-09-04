@@ -1,7 +1,7 @@
 defineRouteMeta({
   openAPI: {
-    description: 'Список серверов игры (например, Steam / DoWOnline).',
-    responses: { 200: { description: 'Успешный ответ' } },
+    description: 'List of game servers (e.g., Steam / DoWOnline).',
+    responses: { 200: { description: 'Successful response' } },
   },
 })
 
