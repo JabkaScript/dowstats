@@ -1,23 +1,32 @@
 {
-  "name": "nuxt-app",
-  "type": "module",
+  "name": "dowstats",
+  "dependencies": {
+    "@nuxt/eslint": "1.9.0",
+    "@nuxt/image": "1.11.0",
+    "@nuxt/test-utils": "3.19.2",
+    "@nuxtjs/i18n": "10.0.6",
+    "@pinia/nuxt": "^0.11.2",
+    "drizzle-orm": "^0.44.5",
+    "eslint": "^9.0.0",
+    "mysql2": "^3.14.4",
+    "nuxt": "^4.0.3",
+    "pinia": "^3.0.3",
+    "typescript": "^5.6.3",
+    "vue": "^3.5.18",
+    "vue-router": "^4.5.1"
+  },
   "private": true,
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
   },
-  "dependencies": {
-    "@nuxt/eslint": "1.9.0",
-    "@nuxt/image": "1.11.0",
-    "@nuxt/test-utils": "3.19.2",
-    "@nuxt/ui": "3.3.2",
-    "eslint": "^9.0.0",
-    "nuxt": "^4.0.3",
-    "typescript": "^5.6.3",
-    "vue": "^3.5.18",
-    "vue-router": "^4.5.1"
+  "type": "module",
+  "devDependencies": {
+    "drizzle-kit": "^0.31.4"
   }
 }

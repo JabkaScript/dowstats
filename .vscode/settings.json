@@ -1,0 +1,9 @@
+{
+    "editor.gotoLocation.multipleDefinitions": "goto",
+     "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+}
