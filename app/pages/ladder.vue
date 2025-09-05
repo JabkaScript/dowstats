@@ -11,6 +11,12 @@ interface LadderItem {
   name: string
   avatarUrl: string | null
   mmr: number | null
+  games: number
+  wins: number
+  winrate: number
+  favoriteRaceId: number | null
+  favoriteRaceName: string | null
+  favoriteRaceShortName: string | null
 }
 
 interface LadderResponse {
@@ -240,7 +246,11 @@ function toNextPage() {
             <tr>
               <th style="text-align: left; border-bottom: 1px solid #ddd; padding: 8px;">#</th>
               <th style="text-align: left; border-bottom: 1px solid #ddd; padding: 8px;">Игрок</th>
+              <th style="text-align: left; border-bottom: 1px solid #ddd; padding: 8px;">Любимая раса</th>
               <th style="text-align: left; border-bottom: 1px solid #ddd; padding: 8px;">MMR</th>
+              <th style="text-align: left; border-bottom: 1px solid #ddd; padding: 8px;">Игры</th>
+              <th style="text-align: left; border-bottom: 1px solid #ddd; padding: 8px;">Победы</th>
+              <th style="text-align: left; border-bottom: 1px solid #ddd; padding: 8px;">Winrate</th>
             </tr>
           </thead>
           <tbody>
@@ -250,7 +260,13 @@ function toNextPage() {
                 <img v-if="row.avatarUrl" :src="row.avatarUrl" alt="avatar" width="28" height="28" style="border-radius: 50%; object-fit: cover;" />
                 <span>{{ row.name }}</span>
               </td>
+              <td style="padding: 8px;">
+                {{ row.favoriteRaceShortName || row.favoriteRaceName || '—' }}
+              </td>
               <td style="padding: 8px;">{{ row.mmr ?? '-' }}</td>
+              <td style="padding: 8px;">{{ row.games }}</td>
+              <td style="padding: 8px;">{{ row.wins }}</td>
+              <td style="padding: 8px;">{{ row.winrate.toFixed(2) }}%</td>
             </tr>
           </tbody>
         </table>
