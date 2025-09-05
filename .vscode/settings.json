@@ -20,6 +20,6 @@
 	"vue.complete.casing.props": "kebab",
 	"vue.complete.casing.tags": "pascal",
 	"[vue]": {
-		"editor.defaultFormatter": "esbenp.prettier-vscode"
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
 	},
 }

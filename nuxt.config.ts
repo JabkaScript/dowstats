@@ -1,16 +1,15 @@
-
-
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   modules: [
     '@nuxt/eslint',
     '@nuxt/image',
     '@nuxt/test-utils',
     '@pinia/nuxt',
     '@nuxtjs/i18n',
-    '@nuxt/ui'
+    '@nuxt/ui',
+    '@vueuse/nuxt',
   ],
   runtimeConfig: {
     public: {
@@ -23,13 +22,12 @@ export default defineNuxtConfig({
   },
 
   css: ['~/assets/css/main.css'],
-  ui: {
-    prefix: 'Nuxt'
-  },
+
   i18n: {
+    langDir: 'locales',
     locales: [
-      { code: 'en', language: 'en-US' },
-      { code: 'ru', language: 'ru-RU' }
+      { code: 'en', language: 'en-US', file: 'en.json' },
+      // { code: 'ru', language: 'ru-RU', file: 'ru.json' }
     ],
     defaultLocale: 'en',
   },
