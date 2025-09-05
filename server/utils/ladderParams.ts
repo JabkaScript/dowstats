@@ -1,8 +1,7 @@
 import { sql, eq, desc } from 'drizzle-orm'
 import { createError } from 'h3'
 import type { LadderQuery, WhereCondition } from '~~/server/interfaces/ladder'
-import { tables } from './drizzle'
-import type { useDrizzle } from './drizzle'
+import { tables, type useDrizzle} from './drizzle'
 
 export type DB = ReturnType<typeof useDrizzle>
 
@@ -69,40 +68,40 @@ export function buildSearchCondition(search: string): WhereCondition | undefined
 
 export function getTotalGamesExpr(mmrType: 'solo' | 'team') {
   const soloGamesSum = sql<number>`
-    COALESCE(${tables.playersStats['1X11']}, 0) + COALESCE(${tables.playersStats['1X12']}, 0) + COALESCE(${tables.playersStats['1X13']}, 0) +
-    COALESCE(${tables.playersStats['1X14']}, 0) + COALESCE(${tables.playersStats['1X15']}, 0) + COALESCE(${tables.playersStats['1X16']}, 0) +
-    COALESCE(${tables.playersStats['1X17']}, 0) + COALESCE(${tables.playersStats['1X18']}, 0) + COALESCE(${tables.playersStats['1X19']}, 0)
+    (${tables.playersStats['1X11']} + ${tables.playersStats['1X12']} + ${tables.playersStats['1X13']} +
+     ${tables.playersStats['1X14']} + ${tables.playersStats['1X15']} + ${tables.playersStats['1X16']} +
+     ${tables.playersStats['1X17']} + ${tables.playersStats['1X18']} + ${tables.playersStats['1X19']})
   `
   const teamGamesSum = sql<number>`
-    COALESCE(${tables.playersStats['2X21']}, 0) + COALESCE(${tables.playersStats['2X22']}, 0) + COALESCE(${tables.playersStats['2X23']}, 0) +
-    COALESCE(${tables.playersStats['2X24']}, 0) + COALESCE(${tables.playersStats['2X25']}, 0) + COALESCE(${tables.playersStats['2X26']}, 0) +
-    COALESCE(${tables.playersStats['2X27']}, 0) + COALESCE(${tables.playersStats['2X28']}, 0) + COALESCE(${tables.playersStats['2X29']}, 0) +
-    COALESCE(${tables.playersStats['3X31']}, 0) + COALESCE(${tables.playersStats['3X32']}, 0) + COALESCE(${tables.playersStats['3X33']}, 0) +
-    COALESCE(${tables.playersStats['3X34']}, 0) + COALESCE(${tables.playersStats['3X35']}, 0) + COALESCE(${tables.playersStats['3X36']}, 0) +
-    COALESCE(${tables.playersStats['3X37']}, 0) + COALESCE(${tables.playersStats['3X38']}, 0) + COALESCE(${tables.playersStats['3X39']}, 0) +
-    COALESCE(${tables.playersStats['4X41']}, 0) + COALESCE(${tables.playersStats['4X42']}, 0) + COALESCE(${tables.playersStats['4X43']}, 0) +
-    COALESCE(${tables.playersStats['4X44']}, 0) + COALESCE(${tables.playersStats['4X45']}, 0) + COALESCE(${tables.playersStats['4X46']}, 0) +
-    COALESCE(${tables.playersStats['4X47']}, 0) + COALESCE(${tables.playersStats['4X48']}, 0) + COALESCE(${tables.playersStats['4X49']}, 0)
+    (${tables.playersStats['2X21']} + ${tables.playersStats['2X22']} + ${tables.playersStats['2X23']} +
+     ${tables.playersStats['2X24']} + ${tables.playersStats['2X25']} + ${tables.playersStats['2X26']} +
+     ${tables.playersStats['2X27']} + ${tables.playersStats['2X28']} + ${tables.playersStats['2X29']} +
+     ${tables.playersStats['3X31']} + ${tables.playersStats['3X32']} + ${tables.playersStats['3X33']} +
+     ${tables.playersStats['3X34']} + ${tables.playersStats['3X35']} + ${tables.playersStats['3X36']} +
+     ${tables.playersStats['3X37']} + ${tables.playersStats['3X38']} + ${tables.playersStats['3X39']} +
+     ${tables.playersStats['4X41']} + ${tables.playersStats['4X42']} + ${tables.playersStats['4X43']} +
+     ${tables.playersStats['4X44']} + ${tables.playersStats['4X45']} + ${tables.playersStats['4X46']} +
+     ${tables.playersStats['4X47']} + ${tables.playersStats['4X48']} + ${tables.playersStats['4X49']})
   `
   return mmrType === 'solo' ? soloGamesSum : teamGamesSum
 }
 
 export function getTotalWinsExpr(mmrType: 'solo' | 'team') {
   const soloWinsSum = sql<number>`
-    COALESCE(${tables.playersStats['1X11W']}, 0) + COALESCE(${tables.playersStats['1X12W']}, 0) + COALESCE(${tables.playersStats['1X13W']}, 0) +
-    COALESCE(${tables.playersStats['1X14W']}, 0) + COALESCE(${tables.playersStats['1X15W']}, 0) + COALESCE(${tables.playersStats['1X16W']}, 0) +
-    COALESCE(${tables.playersStats['1X17W']}, 0) + COALESCE(${tables.playersStats['1X18W']}, 0) + COALESCE(${tables.playersStats['1X19W']}, 0)
+    (${tables.playersStats['1X11W']} + ${tables.playersStats['1X12W']} + ${tables.playersStats['1X13W']} +
+     ${tables.playersStats['1X14W']} + ${tables.playersStats['1X15W']} + ${tables.playersStats['1X16W']} +
+     ${tables.playersStats['1X17W']} + ${tables.playersStats['1X18W']} + ${tables.playersStats['1X19W']})
   `
   const teamWinsSum = sql<number>`
-    COALESCE(${tables.playersStats['2X21W']}, 0) + COALESCE(${tables.playersStats['2X22W']}, 0) + COALESCE(${tables.playersStats['2X23W']}, 0) +
-    COALESCE(${tables.playersStats['2X24W']}, 0) + COALESCE(${tables.playersStats['2X25W']}, 0) + COALESCE(${tables.playersStats['2X26W']}, 0) +
-    COALESCE(${tables.playersStats['2X27W']}, 0) + COALESCE(${tables.playersStats['2X28W']}, 0) + COALESCE(${tables.playersStats['2X29W']}, 0) +
-    COALESCE(${tables.playersStats['3X31W']}, 0) + COALESCE(${tables.playersStats['3X32W']}, 0) + COALESCE(${tables.playersStats['3X33W']}, 0) +
-    COALESCE(${tables.playersStats['3X34W']}, 0) + COALESCE(${tables.playersStats['3X35W']}, 0) + COALESCE(${tables.playersStats['3X36W']}, 0) +
-    COALESCE(${tables.playersStats['3X37W']}, 0) + COALESCE(${tables.playersStats['3X38W']}, 0) + COALESCE(${tables.playersStats['3X39W']}, 0) +
-    COALESCE(${tables.playersStats['4X41W']}, 0) + COALESCE(${tables.playersStats['4X42W']}, 0) + COALESCE(${tables.playersStats['4X43W']}, 0) +
-    COALESCE(${tables.playersStats['4X44W']}, 0) + COALESCE(${tables.playersStats['4X45W']}, 0) + COALESCE(${tables.playersStats['4X46W']}, 0) +
-    COALESCE(${tables.playersStats['4X47W']}, 0) + COALESCE(${tables.playersStats['4X48W']}, 0) + COALESCE(${tables.playersStats['4X49W']}, 0)
+    (${tables.playersStats['2X21W']} + ${tables.playersStats['2X22W']} + ${tables.playersStats['2X23W']} +
+     ${tables.playersStats['2X24W']} + ${tables.playersStats['2X25W']} + ${tables.playersStats['2X26W']} +
+     ${tables.playersStats['2X27W']} + ${tables.playersStats['2X28W']} + ${tables.playersStats['2X29W']} +
+     ${tables.playersStats['3X31W']} + ${tables.playersStats['3X32W']} + ${tables.playersStats['3X33W']} +
+     ${tables.playersStats['3X34W']} + ${tables.playersStats['3X35W']} + ${tables.playersStats['3X36W']} +
+     ${tables.playersStats['3X37W']} + ${tables.playersStats['3X38W']} + ${tables.playersStats['3X39W']} +
+     ${tables.playersStats['4X41W']} + ${tables.playersStats['4X42W']} + ${tables.playersStats['4X43W']} +
+     ${tables.playersStats['4X44W']} + ${tables.playersStats['4X45W']} + ${tables.playersStats['4X46W']} +
+     ${tables.playersStats['4X47W']} + ${tables.playersStats['4X48W']} + ${tables.playersStats['4X49W']})
   `
   return mmrType === 'solo' ? soloWinsSum : teamWinsSum
 }
