@@ -63,7 +63,7 @@ export function buildSearchCondition(search: string): WhereCondition | undefined
   const s = search.toString().trim().toLowerCase()
   if (s.length === 0) return undefined
   const pattern = `%${s}%`
-  return sql`(LOWER(${tables.players.name}) LIKE ${pattern} OR LOWER(${tables.players.lastNicknames}) LIKE ${pattern})` as unknown as WhereCondition
+  return sql`LOWER(${tables.players.name}) LIKE ${pattern}` as unknown as WhereCondition
 }
 
 export function getTotalGamesExpr(mmrType: 'solo' | 'team') {

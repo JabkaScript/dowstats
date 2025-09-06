@@ -14,7 +14,7 @@ const items = computed<NavigationMenuItem[]>(() => [
 </script>
 
 <template>
-  <div class="min-h-dvh flex flex-col">
+  <div class="min-h-dvh">
     <UHeader to="/" title="DoW Stats" >
 
       <UNavigationMenu :items />
@@ -24,11 +24,8 @@ const items = computed<NavigationMenuItem[]>(() => [
         <LocaleSelector />
       </template>
     </UHeader>
-
     <UMain>
       <slot />
     </UMain>
-
-    <UFooter />
   </div>
 </template>
