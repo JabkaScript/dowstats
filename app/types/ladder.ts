@@ -35,14 +35,23 @@ export interface ModItem {
   technicalName: string
   position: number
 }
-export interface ModsResponse { items: ModItem[] }
+export interface ModsResponse {
+  items: ModItem[]
+}
 
 export interface SeasonItem {
   id: number
   seasonName: string
   isActive: number | boolean
 }
-export interface SeasonsResponse { items: SeasonItem[] }
+export interface SeasonsResponse {
+  items: SeasonItem[]
+}
 
-export interface ServerItem { id: number; name: string }
-export interface ServersResponse { items: ServerItem[] }
+export interface ServerItem {
+  id: number
+  name: string
+}
+export interface ServersResponse {
+  items: ServerItem[]
+}

@@ -12,21 +12,21 @@ const query = computed(() => ({
   mmrType: mmrType.value,
   search: searchDebounced.value,
   page: page.value,
-  pageSize: pageSize.value
+  pageSize: pageSize.value,
 }))
 const { data, refresh, pending } = await useFetch('/api/v1/ladder', {
-  query
+  query,
 })
 
 const total = computed(() => data.value?.meta?.total || 0)
-const shownFrom = computed(() => total.value === 0 ? 0 : (page.value - 1) * pageSize.value + 1)
+const shownFrom = computed(() => (total.value === 0 ? 0 : (page.value - 1) * pageSize.value + 1))
 const shownTo = computed(() => Math.min(page.value * pageSize.value, total.value))
 
 watch([mod, server, season, mmrType, searchDebounced], () => {
   page.value = 1
   refresh()
 })
-watch([page, pageSize], () => (refresh()))
+watch([page, pageSize], () => refresh())
 </script>
 
 <template>
@@ -35,12 +35,19 @@ watch([page, pageSize], () => (refresh()))
       <UPageHeader
         class="border-none py-2"
         :title="mmrType === 'solo' ? $t('ladder.soloLadder') : $t('ladder.teamLadder')"
-        :description="$t('ladder.browseLeaderboard')" />
+        :description="$t('ladder.browseLeaderboard')"
+      />
 
       <section aria-label="Filters" class="mt-2">
         <UCard variant="subtle">
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-2 md:gap-3">
-            <UInput v-model="search" class="w-full" icon="lucide:search" variant="outline" placeholder="Search..." />
+            <UInput
+              v-model="search"
+              class="w-full"
+              icon="lucide:search"
+              variant="outline"
+              placeholder="Search..."
+            />
             <ModSelector v-model="mod" />
             <ServerSelector v-model="server" />
             <SeasonSelector v-model="season" hide-all-seasons />
@@ -49,7 +56,9 @@ watch([page, pageSize], () => (refresh()))
         </UCard>
       </section>
 
-      <div class="flex items-center justify-between py-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+      <div
+        class="flex items-center justify-between py-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400"
+      >
         <div>
           <span v-if="total">Showing {{ shownFrom }}–{{ shownTo }} of {{ total }}</span>
           <span v-else>No results</span>
@@ -60,7 +69,12 @@ watch([page, pageSize], () => (refresh()))
         </div>
       </div>
 
-      <LadderTable :data="data?.items || []" :loading="pending" :ui="{ td: 'p-1' }" :mmr-type="mmrType" />
+      <LadderTable
+        :data="data?.items || []"
+        :loading="pending"
+        :ui="{ td: 'p-1' }"
+        :mmr-type="mmrType"
+      />
 
       <div class="flex justify-center py-6">
         <UPagination v-model:page="page" :items-per-page="pageSize" :total="total" show-edges />

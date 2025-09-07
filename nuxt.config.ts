@@ -18,7 +18,7 @@ export default defineNuxtConfig({
       dbUser: process.env.NUXT_DB_USER,
       dbPassword: process.env.NUXT_DB_PASSWORD,
       dbName: process.env.NUXT_DB_NAME,
-    }
+    },
   },
 
   css: ['~/assets/css/main.css'],
@@ -33,11 +33,11 @@ export default defineNuxtConfig({
   },
   nitro: {
     experimental: {
-      openAPI: true
+      openAPI: true,
     },
     openAPI: {
       production: 'prerender',
-      route: "/docs"
-    }
+      route: '/docs',
+    },
   },
 })

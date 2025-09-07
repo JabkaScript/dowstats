@@ -1,0 +1,23 @@
+# Dependencies
+node_modules
+
+# Nuxt build directories
+.nuxt
+.output
+
+# Dist/build artifacts
+dist
+coverage
+
+# Lockfiles and generated artifacts (optional)
+# package-lock.json
+# pnpm-lock.yaml
+# yarn.lock
+
+# Misc
+*.log
+
+# Configs
+.prettierrc
+.trae
+.vscode

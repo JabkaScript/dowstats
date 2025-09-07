@@ -1,14 +1,17 @@
 import { sql, eq, desc } from 'drizzle-orm'
 import { createError } from 'h3'
 import type { LadderQuery, WhereCondition } from '~~/server/interfaces/ladder'
-import { tables, type useDrizzle} from './drizzle'
+import { tables, type useDrizzle } from './drizzle'
 
 export type DB = ReturnType<typeof useDrizzle>
 
 export function parseModId(query: Partial<LadderQuery>): number {
   const modId = Number(query.mod)
   if (!modId || Number.isNaN(modId)) {
-    throw createError({ statusCode: 400, statusMessage: 'Query parameter "mod" (mod_id) is required and must be an integer.' })
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Query parameter "mod" (mod_id) is required and must be an integer.',
+    })
   }
   return modId
 }
@@ -16,7 +19,10 @@ export function parseModId(query: Partial<LadderQuery>): number {
 export function parseMmrType(query: Partial<LadderQuery>): 'solo' | 'team' {
   const mmrType = (query.mmrType || 'solo').toLowerCase() as 'solo' | 'team'
   if (mmrType !== 'solo' && mmrType !== 'team') {
-    throw createError({ statusCode: 400, statusMessage: "Parameter 'mmrType' must be 'solo' or 'team'." })
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Parameter 'mmrType' must be 'solo' or 'team'.",
+    })
   }
   return mmrType
 }
@@ -28,12 +34,19 @@ export function parseSort(query: Partial<LadderQuery>): 'asc' | 'desc' {
 export function parseServerId(query: Partial<LadderQuery>): number | undefined {
   const serverId = query.server ? Number(query.server) : undefined
   if (serverId !== undefined && (Number.isNaN(serverId) || serverId <= 0)) {
-    throw createError({ statusCode: 400, statusMessage: "Parameter 'server' must be a positive integer." })
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Parameter 'server' must be a positive integer.",
+    })
   }
   return serverId
 }
 
-export function parsePagination(query: Partial<LadderQuery>): { page: number; pageSize: number; offset: number } {
+export function parsePagination(query: Partial<LadderQuery>): {
+  page: number
+  pageSize: number
+  offset: number
+} {
   const page = Math.max(1, Number(query.page) || 1)
   let pageSize = Number(query.pageSize) || 25
   if (Number.isNaN(pageSize) || pageSize <= 0) pageSize = 25
@@ -54,7 +67,10 @@ export function parseMinGames(query: Partial<LadderQuery>): number {
 export function parseProvidedSeason(query: Partial<LadderQuery>): number | undefined {
   const providedSeason = query.season ? Number(query.season) : undefined
   if (providedSeason !== undefined && (Number.isNaN(providedSeason) || providedSeason <= 0)) {
-    throw createError({ statusCode: 400, statusMessage: "Parameter 'season' must be a positive integer." })
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Parameter 'season' must be a positive integer.",
+    })
   }
   return providedSeason
 }

@@ -4,7 +4,7 @@ import * as schema from './database/schema'
 
 const config = useRuntimeConfig()
 const pool = mysql.createPool({
-  host:  config.public.dbHost,
+  host: config.public.dbHost,
   user: config.public.dbUser,
   password: config.public.dbPassword,
   database: config.public.dbName,

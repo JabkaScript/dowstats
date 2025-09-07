@@ -1,5 +1,3 @@
-
-
 defineRouteMeta({
   openAPI: {
     description: 'List of available mods (only visible ones).',

@@ -6,20 +6,18 @@
     "strings": "on"
   },
   "tailwindCSS.classAttributes": ["class", "ui"],
-  "tailwindCSS.experimental.classRegex": [
-    ["ui:\\s*{([^)]*)\\s*}", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
-  ],
+  "tailwindCSS.experimental.classRegex": [["ui:\\s*{([^)]*)\\s*}", "(?:'|\"|`)([^']*)(?:'|\"|`)"]],
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-	"editor.formatOnPaste": false,
-	"editor.formatOnSave": true,
-	"editor.formatOnType": false,
-	"eslint.format.enable": true,
-	"scss.lint.unknownAtRules": "ignore",
-	"prettier.configPath": "prettier.config.js",
-	"prettier.useEditorConfig": false,
-	"vue.complete.casing.props": "kebab",
-	"vue.complete.casing.tags": "pascal",
-	"[vue]": {
-		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
-	},
+  "editor.formatOnPaste": false,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": false,
+  "eslint.format.enable": true,
+  "scss.lint.unknownAtRules": "ignore",
+  "prettier.configPath": "prettier.config.js",
+  "prettier.useEditorConfig": false,
+  "vue.complete.casing.props": "kebab",
+  "vue.complete.casing.tags": "pascal",
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
