@@ -13,7 +13,7 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     public: {
-      dbHost: process.env.NUXT_DB_HOST_ADDR,
+      dbHost: process.env.NUXT_DB_HOST,
       dbPort: process.env.NUXT_DB_PORT,
       dbUser: process.env.NUXT_DB_USER,
       dbPassword: process.env.NUXT_DB_PASSWORD,
