@@ -1,0 +1,17 @@
+{
+  "ladder.filters": "Фильтры",
+  "ladder.searchPlaceholder": "Поиск...",
+  "ladder.showingRangeOfTotal": "Показаны {from}–{to} из {total}",
+  "ladder.noResults": "Ничего не найдено",
+  "ladder.page": "Страница {page}",
+  "ladder.nothingToShow": "Нет данных для отображения",
+  "ladder.adjustFilters": "Измените фильтры, чтобы найти игроков.",
+  "ladder.games": "Игры",
+  "ladder.wins": "Победы",
+  "ladder.winrate": "Винрейт (%)",
+  "Solo": "Соло",
+  "MMR": "MMR",
+  "Team": "Командный",
+  "Favorite Race": "Любимая раса",
+  "Player": "Игрок"
+}

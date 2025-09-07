@@ -32,13 +32,7 @@ watch([page, pageSize], () => refresh())
 <template>
   <UContainer class="py-4 h-full">
     <UPage>
-      <UPageHeader
-        class="border-none py-2"
-        :title="mmrType === 'solo' ? $t('ladder.soloLadder') : $t('ladder.teamLadder')"
-        :description="$t('ladder.browseLeaderboard')"
-      />
-
-      <section aria-label="Filters" class="mt-2">
+      <section :aria-label="$t('ladder.filters')" class="mt-2">
         <UCard variant="subtle">
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-2 md:gap-3">
             <UInput
@@ -46,7 +40,7 @@ watch([page, pageSize], () => refresh())
               class="w-full"
               icon="lucide:search"
               variant="outline"
-              placeholder="Search..."
+              :placeholder="$t('ladder.searchPlaceholder')"
             />
             <ModSelector v-model="mod" />
             <ServerSelector v-model="server" />
@@ -60,19 +54,19 @@ watch([page, pageSize], () => refresh())
         class="flex items-center justify-between py-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400"
       >
         <div>
-          <span v-if="total">Showing {{ shownFrom }}–{{ shownTo }} of {{ total }}</span>
-          <span v-else>No results</span>
+          <span v-if="total">{{ $t('ladder.showingRangeOfTotal', { from: shownFrom, to: shownTo, total }) }}</span>
+          <span v-else>{{ $t('ladder.noResults') }}</span>
         </div>
         <div class="hidden sm:flex items-center gap-2">
           <UIcon name="i-lucide-info" class="h-4 w-4" />
-          <span>Page {{ page }}</span>
+          <span>{{ $t('ladder.page', { page }) }}</span>
         </div>
       </div>
 
       <LadderTable
         :data="data?.items || []"
         :loading="pending"
-        :ui="{ td: 'p-1' }"
+        :ui="{ td: 'p-1', th: 'p-1' }"
         :mmr-type="mmrType"
       />
 

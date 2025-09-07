@@ -1,4 +1,5 @@
-import { desc, asc, sql, and, eq, inArray } from 'drizzle-orm'
+// @ts-check
+import { desc, asc, sql, and, eq, inArray, gte } from 'drizzle-orm'
 import type { LadderQuery, WhereCondition, SoloRow, TeamRow } from '~~/server/interfaces/ladder'
 
 defineRouteMeta({
@@ -116,27 +117,30 @@ export default defineEventHandler(async (event) => {
   const totalWinsExpr = getTotalWinsExpr(mmrType)
 
   // Build conditions
-  const conditions: WhereCondition[] = [
+  const baseConditions: WhereCondition[] = [
     eq(tables.playersStats.seasonId, seasonId),
     eq(tables.playersStats.modId, modId),
   ]
 
   if (serverId) {
-    conditions.push(eq(tables.players.serverId, serverId) as unknown as WhereCondition)
+    baseConditions.push(eq(tables.players.serverId, serverId) as unknown as WhereCondition)
   }
 
-  const searchCond = buildSearchCondition(search)
-  if (searchCond) conditions.push(searchCond)
+  // Apply minimum games condition (part of base conditions)
+  baseConditions.push(sql`${totalGamesExpr} >= ${minGames}` as unknown as WhereCondition)
 
-  // Apply minimum games condition
-  conditions.push(sql`${totalGamesExpr} >= ${minGames}` as unknown as WhereCondition)
+  const searchCond = buildSearchCondition(search)
+  const conditions: WhereCondition[] = searchCond ? [...baseConditions, searchCond] : baseConditions
 
   // Count total for pagination
-  const totalRows = await db
-    .select({ count: sql<number>`COUNT(*)` })
-    .from(tables.playersStats)
-    .innerJoin(tables.players, eq(tables.players.id, tables.playersStats.playerId))
-    .where(and(...conditions))
+  const totalRows = await (
+    searchCond || serverId
+      ? db
+          .select({ count: sql<number>`COUNT(*)` })
+          .from(tables.playersStats)
+          .innerJoin(tables.players, eq(tables.players.id, tables.playersStats.playerId))
+      : db.select({ count: sql<number>`COUNT(*)` }).from(tables.playersStats)
+  ).where(and(...conditions))
 
   const total = Number(totalRows?.[0]?.count || 0)
   const totalPages = total === 0 ? 0 : Math.ceil(total / pageSize)
@@ -207,6 +211,43 @@ export default defineEventHandler(async (event) => {
       .orderBy(sortDir === 'asc' ? asc(mmrCol) : desc(mmrCol))
       .limit(pageSize)
       .offset(offset)) as TeamRow[]
+  }
+
+  // Compute global rank (independent of search) based on MMR order within base conditions
+  const rankByMmr = new Map<number, number>()
+  if (rows.length > 0) {
+    const mmrsOnPage = rows.map((r) => Number(r.mmr)).filter((v) => Number.isFinite(v)) as number[]
+    if (mmrsOnPage.length) {
+      const minMmrOnPage = Math.min(...mmrsOnPage)
+
+      const dist = await (
+        serverId
+          ? db
+              .select({
+                mmr: mmrCol,
+                cnt: sql<number>`COUNT(*)`,
+              })
+              .from(tables.playersStats)
+              .innerJoin(tables.players, eq(tables.players.id, tables.playersStats.playerId))
+          : db
+              .select({
+                mmr: mmrCol,
+                cnt: sql<number>`COUNT(*)`,
+              })
+              .from(tables.playersStats)
+      )
+        .where(and(...baseConditions, gte(mmrCol, minMmrOnPage) as unknown as WhereCondition))
+        .groupBy(mmrCol)
+        .orderBy(desc(mmrCol))
+
+      let prefix = 0
+      for (const row of dist) {
+        const m = Number(row.mmr)
+        const c = Number(row.cnt || 0)
+        rankByMmr.set(m, prefix + 1)
+        prefix += c
+      }
+    }
   }
 
   // Compute favorite race per player for the current ladder slice using players_stats race counters
@@ -289,12 +330,12 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  const items = rows.map((r, idx) => {
+  const items = rows.map((r, _idx) => {
     const fav = favoriteByPlayer.get(String(r.playerId))
     const race = fav ? raceInfoMap.get(fav.raceId) : undefined
     const totals = totalsByPlayer.get(String(r.playerId)) || { games: 0, wins: 0, winrate: 0 }
     return {
-      rank: offset + idx + 1,
+      rank: r.mmr == null ? null : (rankByMmr.get(Number(r.mmr)) ?? null),
       playerId: r.playerId,
       name: r.name,
       avatarUrl: r.avatarUrl,

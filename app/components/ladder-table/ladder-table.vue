@@ -14,6 +14,10 @@ const columns: TableColumn<LadderItem>[] = [
     accessorKey: 'name',
   },
   {
+    id: 'favoriteRaceName',
+    accessorKey: 'favoriteRaceName',
+  },
+  {
     id: 'mmr',
     accessorKey: 'mmr',
   },
@@ -28,10 +32,6 @@ const columns: TableColumn<LadderItem>[] = [
   {
     id: 'winrate',
     accessorKey: 'winrate',
-  },
-  {
-    id: 'favoriteRaceName',
-    accessorKey: 'favoriteRaceName',
   },
 ]
 
@@ -52,15 +52,16 @@ const formatPct = (v: unknown): string => {
         class="flex flex-col items-center justify-center py-10 text-center text-gray-500 dark:text-gray-400"
       >
         <UIcon name="i-lucide-users" class="mb-2 h-6 w-6" />
-        <p class="font-medium">Nothing to show</p>
-        <p class="text-sm">Adjust filters to find players.</p>
+
+        <p class="font-medium">{{ $t('ladder.nothingToShow') }}</p>
+        <p class="text-sm">{{ $t('ladder.adjustFilters') }}</p>
       </div>
     </template>
     <template #rank-header>
-      <div class="text-center">#</div>
+      <div class="text-left">#</div>
     </template>
     <template #rank-cell="{ row }">
-      <span class="block w-full text-center text-highlighted">{{ row.getValue('rank') }}</span>
+      <span class="block w-full text-left text-highlighted">{{ row.getValue('rank') }}</span>
     </template>
     <template #name-header>
       {{ $t('Player') }}
@@ -80,41 +81,39 @@ const formatPct = (v: unknown): string => {
       </div>
     </template>
     <template #mmr-header>
-      <div class="text-center">
+      <div class="text-right">
         {{ mmrType === 'solo' ? $t('Solo') : $t('Team') }} {{ $t('MMR') }}
       </div>
     </template>
     <template #mmr-cell="{ row }">
-      <span class="block text-center tabular-nums font-medium text-highlighted">
+      <span class="block text-right tabular-nums font-medium text-highlighted">
         {{ formatInt(row.getValue('mmr')) }}
       </span>
     </template>
 
     <template #games-header>
-      <div class="text-center">Games</div>
+      <div class="text-right">{{ $t('ladder.games') }}</div>
     </template>
     <template #games-cell="{ row }">
-      <span class="block text-center tabular-nums">{{ formatInt(row.getValue('games')) }}</span>
+      <span class="block text-right tabular-nums">{{ formatInt(row.getValue('games')) }}</span>
     </template>
     <template #wins-header>
-      <div class="text-center">Wins</div>
+      <div class="text-right">{{ $t('ladder.wins') }}</div>
     </template>
     <template #wins-cell="{ row }">
-      <span class="block text-center tabular-nums">{{ formatInt(row.getValue('wins')) }}</span>
+      <span class="block text-right tabular-nums">{{ formatInt(row.getValue('wins')) }}</span>
     </template>
     <template #winrate-header>
-      <div class="text-center">Winrate (%)</div>
+      <div class="text-right">{{ $t('ladder.winrate') }}</div>
     </template>
     <template #winrate-cell="{ row }">
-      <span class="block text-center tabular-nums">{{ formatPct(row.getValue('winrate')) }}</span>
+      <span class="block text-right tabular-nums">{{ formatPct(row.getValue('winrate')) }}%</span>
     </template>
     <template #favoriteRaceName-header>
-      <div class="text-center">{{ $t('Favorite Race') }}</div>
+      {{ $t('Favorite Race') }}
     </template>
     <template #favoriteRaceName-cell="{ row }">
-      <span class="block text-center">
-        {{ row.original.favoriteRaceName || row.getValue('favoriteRaceName') || '—' }}
-      </span>
+      {{ row.original.favoriteRaceName || row.getValue('favoriteRaceName') || '—' }}
     </template>
   </UTable>
 </template>
