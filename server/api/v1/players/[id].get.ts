@@ -7,6 +7,11 @@ import {
   getTotalGamesExpr,
   getTotalWinsExpr,
 } from '~~/server/utils/ladderParams'
+import {
+  calculateWinrate,
+  calculateFormatTotal,
+  combineFormatTotals,
+} from '~~/server/utils/player-stats'
 
 defineRouteMeta({
   openAPI: {
@@ -272,8 +277,14 @@ export default defineEventHandler(async (event) => {
     }
   })
 
-  const winrate = (wins: number | null, games: number | null) =>
-    games && games > 0 && wins != null ? Math.round((wins / games) * 1000) / 10 : null
+  // Aggregates for each format
+  const fmt1v1Total = calculateFormatTotal(fmt1v1)
+  const fmt2v2Total = calculateFormatTotal(fmt2v2)
+  const fmt3v3Total = calculateFormatTotal(fmt3v3)
+  const fmt4v4Total = calculateFormatTotal(fmt4v4)
+
+  // Overall total across all formats
+  const overallTotal = combineFormatTotals([fmt1v1Total, fmt2v2Total, fmt3v3Total, fmt4v4Total])
 
   const item = {
     playerId: row.playerId,
@@ -289,19 +300,20 @@ export default defineEventHandler(async (event) => {
     solo: {
       totalGames: row.totalGamesSolo,
       totalWins: row.totalWinsSolo,
-      winrate: winrate(row.totalWinsSolo, row.totalGamesSolo),
+      winrate: calculateWinrate(row.totalWinsSolo, row.totalGamesSolo),
     },
     team: {
       totalGames: row.totalGamesTeam,
       totalWins: row.totalWinsTeam,
-      winrate: winrate(row.totalWinsTeam, row.totalGamesTeam),
+      winrate: calculateWinrate(row.totalWinsTeam, row.totalGamesTeam),
     },
     formats: {
-      '1v1': fmt1v1,
-      '2v2': fmt2v2,
-      '3v3': fmt3v3,
-      '4v4': fmt4v4,
+      '1v1': { races: fmt1v1, total: fmt1v1Total },
+      '2v2': { races: fmt2v2, total: fmt2v2Total },
+      '3v3': { races: fmt3v3, total: fmt3v3Total },
+      '4v4': { races: fmt4v4, total: fmt4v4Total },
     },
+    total: overallTotal,
   }
 
   return { item, meta: { playerId, modId, seasonId } }
