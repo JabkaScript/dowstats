@@ -66,15 +66,24 @@ paths:
           description: Recent match history returned
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/RecentMatchHistoryResponse'
               example:
+                result: 0
                 matchHistoryStats:
-                  - matchId: 123456
-                    mapName: 2p_FallenCity
-                    startTime: 1694298000
-                    players:
-                      - profileId: 111
-                        name: 4str3
-                        result: win
+                  - id: 800789
+                    creator_profile_id: 10334711
+                    mapname: 4P_DREAD_PEAK
+                    matchtype_id: 2
+                    startgametime: 1756418585
+                    completiontime: 1756419020
+                    matchhistorymember:
+                      - profile_id: 10729783
+                        race_id: 7
+                        teamid: 1
+                        wins: 3
+                        losses: 5
+                        outcome: 1
         '400':
           description: Invalid request parameters
         '500':
@@ -106,7 +115,10 @@ paths:
           description: Recent match history returned
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/RecentMatchHistoryByProfileIdResponse'
               example:
+                result: 0
                 matchHistoryStats:
                   - id: 800789
                     creator_profile_id: 10334711
@@ -114,6 +126,9 @@ paths:
                     matchtype_id: 2
                     startgametime: 1756418585
                     completiontime: 1756419020
+                    slotinfo:
+                      team1: [10729783, 10334711]
+                      team2: [11851962, 10445236]
                     matchhistorymember:
                       - profile_id: 10729783
                         race_id: 7
@@ -121,6 +136,13 @@ paths:
                         wins: 3
                         losses: 5
                         outcome: 1
+                      - profile_id: 10334711
+                        race_id: 5
+                        teamid: 1
+                        wins: 10
+                        losses: 2
+                        outcome: 1
+                profiles: []
         '400':
           description: Invalid request parameters
         '500':
@@ -145,6 +167,8 @@ paths:
           description: Leaderboard list returned
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/AvailableLeaderboardsResponse'
               example:
                 leaderboards:
                   - id: 1
@@ -195,6 +219,8 @@ paths:
           description: Player statistics returned
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/PersonalStatsResponse'
               example:
                 stats:
                   - leaderboard_id: 1
@@ -254,156 +280,175 @@ paths:
           description: Leaderboard entries
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/Leaderboard2Response'
               example:
                 leaderboardStats:
                   - profileId: 123
+                    statgroup_id: 987654
                     name: 4str3
                     rank: 1
                     gamesPlayed: 88
                     wins: 70
+                statGroups:
+                  "987654":
+                    id: 987654
+                    type: arrangedTeam
+                    members:
+                      - profile_id: 123
+                        name: 4str3
+                      - profile_id: 456
+                        name: ally2
         '400':
           description: Invalid leaderboard parameters
         '500':
           description: Internal API error
 
   # Game API endpoints
-  /game/account/getprofilename:
-    get:
-      tags:
-        - Game API - Account
-      summary: Get Profile Name
-      description: Returns profile names for the specified profile IDs.
-      parameters:
-        - name: callNum
-          in: query
-          required: true
-          schema:
-            type: integer
-            example: 15
-          description: Call number for the request
-        - name: connect_id
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Connection ID for the session
-        - name: profile_ids
-          in: query
-          required: true
-          schema:
-            type: string
-            example: '%5B10445236%2C11851962%5D'
-          description: URL-encoded JSON array of profile IDs
-        - name: sessionID
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Session ID for authentication
-      responses:
-        '200':
-          description: Profile names returned
-          content:
-            application/json:
+  paths:
+    /game/account/getprofilename:
+      get:
+        tags:
+          - Game API - Account
+        summary: Get Profile Name
+        description: Returns profile names for the specified profile IDs.
+        parameters:
+          - name: callNum
+            in: query
+            required: true
+            schema:
+              type: integer
+              example: 15
+            description: Call number for the request
+          - name: connect_id
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Connection ID for the session
+          - name: profile_ids
+            in: query
+            required: true
+            schema:
+              type: string
+              example: '%5B10445236%2C11851962%5D'
+            description: URL-encoded JSON array of profile IDs
+          - name: sessionID
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Session ID for authentication
+        responses:
+          '200':
+            description: Profile names returned
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/GetProfileNameResponse'
               example:
                 profiles:
                   - id: 10445236
                     name: PlayerOne
                   - id: 11851962
                     name: PlayerTwo
-        '400':
-          description: Invalid request parameters
-        '401':
-          description: Unauthorized - invalid session
-        '500':
-          description: Server error
+            '400':
+              description: Invalid request parameters
+            '401':
+              description: Unauthorized - invalid session
+            '500':
+              description: Server error
 
-  /game/leaderboard/getleaderboard:
-    get:
-      tags:
-        - Game API - Leaderboard
-      summary: Get Leaderboard
-      description: Returns leaderboard data for in-game display.
-      parameters:
-        - name: title
-          in: query
-          required: true
-          schema:
-            type: string
-            example: dow1-de
-          description: Game identifier
-        - name: leaderboard_id
-          in: query
-          required: true
-          schema:
-            type: integer
-            example: 1
-          description: ID of the leaderboard to retrieve
-        - name: format
-          in: query
-          required: true
-          schema:
-            type: string
-            example: json
-          description: Response format (json)
-      responses:
-        '200':
-          description: Leaderboard data returned
-          content:
-            application/json:
+      /game/leaderboard/getleaderboard:
+        get:
+          tags:
+            - Game API - Leaderboard
+        summary: Get Leaderboard
+        description: Returns leaderboard data for in-game display.
+        parameters:
+          - name: title
+            in: query
+            required: true
+            schema:
+              type: string
+              example: dow1-de
+            description: Game identifier
+          - name: leaderboard_id
+            in: query
+            required: true
+            schema:
+              type: integer
+              example: 1
+            description: ID of the leaderboard to retrieve
+          - name: format
+            in: query
+            required: true
+            schema:
+              type: string
+              example: json
+            description: Response format (json)
+        responses:
+          '200':
+            description: Leaderboard data returned
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/GameLeaderboardResponse'
               example:
                 leaderboard:
                   - rank: 1
                     name: TopPlayer
                     wins: 120
                     losses: 20
-        '400':
-          description: Invalid request parameters
-        '500':
-          description: Server error
+            '400':
+              description: Invalid request parameters
+            '500':
+              description: Server error
 
-  /game/leaderboard/getpersonalstat:
-    get:
-      tags:
-        - Game API - Leaderboard
-      summary: Get Personal Stats (Game API)
-      description: Returns personal stats for in-game display.
-      parameters:
-        - name: callNum
-          in: query
-          required: true
-          schema:
-            type: integer
-            example: 17
-          description: Call number for the request
-        - name: connect_id
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Connection ID for the session
-        - name: profileids
-          in: query
-          required: true
-          schema:
-            type: string
-            example: '%5B10322101%5D'
-          description: URL-encoded JSON array of profile IDs
-        - name: sessionID
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Session ID for authentication
-      responses:
-        '200':
-          description: Personal stats returned
-          content:
-            application/json:
+      /game/leaderboard/getpersonalstat:
+        get:
+          tags:
+            - Game API - Leaderboard
+        summary: Get Personal Stats (Game API)
+        description: Returns personal stats for in-game display.
+        parameters:
+          - name: callNum
+            in: query
+            required: true
+            schema:
+              type: integer
+              example: 17
+            description: Call number for the request
+          - name: connect_id
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Connection ID for the session
+          - name: profileids
+            in: query
+            required: true
+            schema:
+              type: string
+              example: '%5B10322101%5D'
+            description: URL-encoded JSON array of profile IDs
+          - name: sessionID
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Session ID for authentication
+        responses:
+          '200':
+            description: Personal stats returned
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/GamePersonalStatsResponse'
               example:
                 stats:
                   - profile_id: 10322101
@@ -411,46 +456,48 @@ paths:
                     wins: 50
                     losses: 30
                     rank: 120
-        '400':
-          description: Invalid request parameters
-        '401':
-          description: Unauthorized - invalid session
-        '500':
-          description: Server error
+            '400':
+              description: Invalid request parameters
+            '401':
+              description: Unauthorized - invalid session
+            '500':
+              description: Server error
 
-  /game/leaderboard/getavailableleaderboards:
-    get:
-      tags:
-        - Game API - Leaderboard
-      summary: Get Available Leaderboards (Game API)
-      description: Returns available leaderboards for in-game display.
-      parameters:
-        - name: callNum
-          in: query
-          required: true
-          schema:
-            type: integer
-            example: 16
-          description: Call number for the request
-        - name: connect_id
-          in: query
-          required: true
-          schema:
-            type: string
-            example: wzfkgdpgqt6zeuf7kt07xytcnlkem2
-          description: Connection ID for the session
-        - name: sessionID
-          in: query
-          required: true
-          schema:
-            type: string
-            example: wzfkgdpgqt6zeuf7kt07xytcnlkem2
-          description: Session ID for authentication
-      responses:
-        '200':
-          description: Available leaderboards returned
-          content:
-            application/json:
+      /game/leaderboard/getavailableleaderboards:
+        get:
+          tags:
+            - Game API - Leaderboard
+        summary: Get Available Leaderboards (Game API)
+        description: Returns available leaderboards for in-game display.
+        parameters:
+          - name: callNum
+            in: query
+            required: true
+            schema:
+              type: integer
+              example: 16
+            description: Call number for the request
+          - name: connect_id
+            in: query
+            required: true
+            schema:
+              type: string
+              example: wzfkgdpgqt6zeuf7kt07xytcnlkem2
+            description: Connection ID for the session
+          - name: sessionID
+            in: query
+            required: true
+            schema:
+              type: string
+              example: wzfkgdpgqt6zeuf7kt07xytcnlkem2
+            description: Session ID for authentication
+        responses:
+          '200':
+            description: Available leaderboards returned
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/AvailableLeaderboardsResponse'
               example:
                 leaderboards:
                   - id: 1
@@ -459,95 +506,99 @@ paths:
                   - id: 2
                     name: "2v2"
                     description: "Team ranked matches"
-        '401':
-          description: Unauthorized - invalid session
-        '500':
-          description: Server error
+            '401':
+              description: Unauthorized - invalid session
+            '500':
+              description: Server error
 
-  /game/replay/requestsignedreplaydownloaduri:
-    get:
-      tags:
-        - Game API - Replay
-      summary: Request Signed Replay Download URI
-      description: Returns a signed URI for downloading a replay file.
-      parameters:
-        - name: callNum
-          in: query
-          required: true
-          schema:
-            type: integer
-            example: 47
-          description: Call number for the request
-        - name: connect_id
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Connection ID for the session
-        - name: key
-          in: query
-          required: true
-          schema:
-            type: string
-            example: replay_files_repo/dow1-de/profile_10729783/a925f3db377326b3e5d491ba99a4376d68e53c44bb41352d8b9702f90fe535f6
-          description: Replay file key
-        - name: sessionID
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Session ID for authentication
-      responses:
-        '200':
-          description: Signed download URI returned
-          content:
-            application/json:
+      /game/replay/requestsignedreplaydownloaduri:
+        get:
+          tags:
+            - Game API - Replay
+        summary: Request Signed Replay Download URI
+        description: Returns a signed URI for downloading a replay file.
+        parameters:
+          - name: callNum
+            in: query
+            required: true
+            schema:
+              type: integer
+              example: 47
+            description: Call number for the request
+          - name: connect_id
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Connection ID for the session
+          - name: key
+            in: query
+            required: true
+            schema:
+              type: string
+              example: replay_files_repo/dow1-de/profile_10729783/a925f3db377326b3e5d491ba99a4376d68e53c44bb41352d8b9702f90fe535f6
+            description: Replay file key
+          - name: sessionID
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Session ID for authentication
+        responses:
+          '200':
+            description: Signed download URI returned
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/SignedReplayUriResponse'
               example:
                 uri: https://storage.example.com/replay_files_repo/dow1-de/profile_10729783/replay.rec?signature=abc123
-        '400':
-          description: Invalid request parameters
-        '401':
-          description: Unauthorized - invalid session
-        '404':
-          description: Replay not found
-        '500':
-          description: Server error
+            '400':
+              description: Invalid request parameters
+            '401':
+              description: Unauthorized - invalid session
+            '404':
+              description: Replay not found
+            '500':
+              description: Server error
 
-  /game/chat/getchatchannels:
-    get:
-      tags:
-        - Game API - Chat
-      summary: Get Chat Channels
-      description: Returns available chat channels for the game.
-      parameters:
-        - name: callNum
-          in: query
-          required: true
-          schema:
-            type: integer
-            example: 27
-          description: Call number for the request
-        - name: connect_id
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Connection ID for the session
-        - name: sessionID
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Session ID for authentication
-      responses:
-        '200':
-          description: Chat channels returned
-          content:
-            application/json:
+      /game/chat/getchatchannels:
+        get:
+          tags:
+            - Game API - Chat
+        summary: Get Chat Channels
+        description: Returns available chat channels for the game.
+        parameters:
+          - name: callNum
+            in: query
+            required: true
+            schema:
+              type: integer
+              example: 27
+            description: Call number for the request
+          - name: connect_id
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Connection ID for the session
+          - name: sessionID
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Session ID for authentication
+        responses:
+          '200':
+            description: Chat channels returned
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ChatChannelsResponse'
               example:
                 channels:
                   - id: 1
@@ -556,164 +607,168 @@ paths:
                   - id: 2
                     name: LFG
                     description: Looking for game
-        '401':
-          description: Unauthorized - invalid session
-        '500':
-          description: Server error
+            '401':
+              description: Unauthorized - invalid session
+            '500':
+              description: Server error
 
-  /game/chat/getofflinemessages:
-    get:
-      tags:
-        - Game API - Chat
-      summary: Get Offline Messages
-      description: Returns offline messages for the player.
-      parameters:
-        - name: callNum
-          in: query
-          required: true
-          schema:
-            type: integer
-            example: 3
-          description: Call number for the request
-        - name: connect_id
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Connection ID for the session
-        - name: sessionID
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Session ID for authentication
-      responses:
-        '200':
-          description: Offline messages returned
-          content:
-            application/json:
+      /game/chat/getofflinemessages:
+        get:
+          tags:
+            - Game API - Chat
+        summary: Get Offline Messages
+        description: Returns offline messages for the player.
+        parameters:
+          - name: callNum
+            in: query
+            required: true
+            schema:
+              type: integer
+              example: 3
+            description: Call number for the request
+          - name: connect_id
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Connection ID for the session
+          - name: sessionID
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Session ID for authentication
+        responses:
+          '200':
+            description: Offline messages returned
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/OfflineMessagesResponse'
               example:
                 messages:
                   - from: PlayerOne
                     message: Hello, want to play later?
                     timestamp: 1694298000
-        '401':
-          description: Unauthorized - invalid session
-        '500':
-          description: Server error
+            '401':
+              description: Unauthorized - invalid session
+            '500':
+              description: Server error
 
-  /game/advertisement/findadvertisements:
-    get:
-      tags:
-        - Game API - Advertisement
-      summary: Find Advertisements
-      description: Returns game advertisements (lobbies) matching the criteria.
-      parameters:
-        - name: appBinaryChecksum
-          in: query
-          required: true
-          schema:
-            type: integer
-            example: 1500739467
-          description: Checksum of the application binary
-        - name: callNum
-          in: query
-          required: true
-          schema:
-            type: integer
-            example: 13
-          description: Call number for the request
-        - name: connect_id
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Connection ID for the session
-        - name: dataChecksum
-          in: query
-          required: true
-          schema:
-            type: integer
-            example: 907936147
-          description: Checksum of the game data
-        - name: matchType_id
-          in: query
-          required: true
-          schema:
-            type: integer
-            example: 0
-          description: Match type ID
-        - name: modDLLChecksum
-          in: query
-          required: true
-          schema:
-            type: integer
-            example: -344600473
-          description: Checksum of the mod DLL
-        - name: modDLLFile
-          in: query
-          required: true
-          schema:
-            type: string
-            example: DXP3Mod.dll
-          description: Mod DLL filename
-        - name: modName
-          in: query
-          required: true
-          schema:
-            type: string
-            example: Soulstorm
-          description: Name of the mod
-        - name: modVersion
-          in: query
-          required: true
-          schema:
-            type: string
-            example: "1.0"
-          description: Version of the mod
-        - name: profile_ids
-          in: query
-          required: true
-          schema:
-            type: string
-            example: '%5B10007134%5D'
-          description: URL-encoded JSON array of profile IDs
-        - name: race_ids
-          in: query
-          required: true
-          schema:
-            type: string
-            example: '%5B0%5D'
-          description: URL-encoded JSON array of race IDs
-        - name: sessionID
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Session ID for authentication
-        - name: statGroup_ids
-          in: query
-          required: true
-          schema:
-            type: string
-            example: '%5B5151%5D'
-          description: URL-encoded JSON array of stat group IDs
-        - name: versionFlags
-          in: query
-          required: true
-          schema:
-            type: integer
-            example: 0
-          description: Version flags
-      responses:
-        '200':
-          description: Advertisements returned
-          content:
-            application/json:
+      /game/advertisement/findadvertisements:
+        get:
+          tags:
+            - Game API - Advertisement
+        summary: Find Advertisements
+        description: Returns game advertisements (lobbies) matching the criteria.
+        parameters:
+          - name: appBinaryChecksum
+            in: query
+            required: true
+            schema:
+              type: integer
+              example: 1500739467
+            description: Checksum of the application binary
+          - name: callNum
+            in: query
+            required: true
+            schema:
+              type: integer
+              example: 13
+            description: Call number for the request
+          - name: connect_id
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Connection ID for the session
+          - name: dataChecksum
+            in: query
+            required: true
+            schema:
+              type: integer
+              example: 907936147
+            description: Checksum of the game data
+          - name: matchType_id
+            in: query
+            required: true
+            schema:
+              type: integer
+              example: 0
+            description: Match type ID
+          - name: modDLLChecksum
+            in: query
+            required: true
+            schema:
+              type: integer
+              example: -344600473
+            description: Checksum of the mod DLL
+          - name: modDLLFile
+            in: query
+            required: true
+            schema:
+              type: string
+              example: DXP3Mod.dll
+            description: Mod DLL filename
+          - name: modName
+            in: query
+            required: true
+            schema:
+              type: string
+              example: Soulstorm
+            description: Name of the mod
+          - name: modVersion
+            in: query
+            required: true
+            schema:
+              type: string
+              example: "1.0"
+            description: Version of the mod
+          - name: profile_ids
+            in: query
+            required: true
+            schema:
+              type: string
+              example: '%5B10007134%5D'
+            description: URL-encoded JSON array of profile IDs
+          - name: race_ids
+            in: query
+            required: true
+            schema:
+              type: string
+              example: '%5B0%5D'
+            description: URL-encoded JSON array of race IDs
+          - name: sessionID
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Session ID for authentication
+          - name: statGroup_ids
+            in: query
+            required: true
+            schema:
+              type: string
+              example: '%5B5151%5D'
+            description: URL-encoded JSON array of stat group IDs
+          - name: versionFlags
+            in: query
+            required: true
+            schema:
+              type: integer
+              example: 0
+            description: Version flags
+        responses:
+          '200':
+            description: Advertisements returned
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/AdvertisementsResponse'
               example:
                 advertisements:
                   - id: 12345
@@ -722,139 +777,145 @@ paths:
                     map: "4P_DREAD_PEAK"
                     slots: 4
                     players: 2
-        '401':
-          description: Unauthorized - invalid session
-        '500':
-          description: Server error
+            '401':
+              description: Unauthorized - invalid session
+            '500':
+              description: Server error
 
-  /game/news/getnews:
-    get:
-      tags:
-        - Game API - News
-      summary: Get News
-      description: Returns news items for the game.
-      parameters:
-        - name: callNum
-          in: query
-          required: true
-          schema:
-            type: integer
-            example: 5
-          description: Call number for the request
-        - name: connect_id
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Connection ID for the session
-        - name: sessionID
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Session ID for authentication
-      responses:
-        '200':
-          description: News items returned
-          content:
-            application/json:
+      /game/news/getnews:
+        get:
+          tags:
+            - Game API - News
+        summary: Get News
+        description: Returns news items for the game.
+        parameters:
+          - name: callNum
+            in: query
+            required: true
+            schema:
+              type: integer
+              example: 5
+            description: Call number for the request
+          - name: connect_id
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Connection ID for the session
+          - name: sessionID
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Session ID for authentication
+        responses:
+          '200':
+            description: News items returned
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/NewsResponse'
               example:
                 news:
                   - id: 1
                     title: "New Balance Patch"
                     content: "We've released a new balance patch for DoW1-DE."
                     date: "2023-09-10"
-        '401':
-          description: Unauthorized - invalid session
-        '500':
-          description: Server error
+            '401':
+              description: Unauthorized - invalid session
+            '500':
+              description: Server error
 
-  /game/item/getitemdefinitionsjson:
-    get:
-      tags:
-        - Game API - Item
-      summary: Get Item Definitions JSON
-      description: Returns definitions for in-game items.
-      parameters:
-        - name: callNum
-          in: query
-          required: true
-          schema:
-            type: integer
-            example: 2
-          description: Call number for the request
-        - name: connect_id
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Connection ID for the session
-        - name: sessionID
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Session ID for authentication
-        - name: signature
-          in: query
-          required: false
-          schema:
-            type: string
-            example: ""
-          description: Signature for verification
-      responses:
-        '200':
-          description: Item definitions returned
-          content:
-            application/json:
+      /game/item/getitemdefinitionsjson:
+        get:
+          tags:
+            - Game API - Item
+        summary: Get Item Definitions JSON
+        description: Returns definitions for in-game items.
+        parameters:
+          - name: callNum
+            in: query
+            required: true
+            schema:
+              type: integer
+              example: 2
+            description: Call number for the request
+          - name: connect_id
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Connection ID for the session
+          - name: sessionID
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Session ID for authentication
+          - name: signature
+            in: query
+            required: false
+            schema:
+              type: string
+              example: ""
+            description: Signature for verification
+        responses:
+          '200':
+            description: Item definitions returned
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ItemDefinitionsResponse'
               example:
                 items:
                   - id: 1
                     name: "Commander Wargear"
                     description: "Enhances commander abilities"
                     type: "equipment"
-        '401':
-          description: Unauthorized - invalid session
-        '500':
-          description: Server error
+            '401':
+              description: Unauthorized - invalid session
+            '500':
+              description: Server error
 
-  /game/relationship/getrelationships:
-    get:
-      tags:
-        - Game API - Relationship
-      summary: Get Relationships
-      description: Returns player relationships (friends, blocked, etc.).
-      parameters:
-        - name: callNum
-          in: query
-          required: true
-          schema:
-            type: integer
-            example: 47
-          description: Call number for the request
-        - name: connect_id
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Connection ID for the session
-        - name: sessionID
-          in: query
-          required: true
-          schema:
-            type: string
-            example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
-          description: Session ID for authentication
-      responses:
-        '200':
-          description: Relationships returned
-          content:
-            application/json:
+      /game/relationship/getrelationships:
+        get:
+          tags:
+            - Game API - Relationship
+        summary: Get Relationships
+        description: Returns player relationships (friends, blocked, etc.).
+        parameters:
+          - name: callNum
+            in: query
+            required: true
+            schema:
+              type: integer
+              example: 47
+            description: Call number for the request
+          - name: connect_id
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Connection ID for the session
+          - name: sessionID
+            in: query
+            required: true
+            schema:
+              type: string
+              example: gp1odrjuotc9fri3dfqkkhn8zjk7hj
+            description: Session ID for authentication
+        responses:
+          '200':
+            description: Relationships returned
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/RelationshipsResponse'
               example:
                 relationships:
                   - type: "friend"
@@ -863,25 +924,260 @@ paths:
                   - type: "blocked"
                     profile_id: 11851962
                     name: "ToxicPlayer"
-        '401':
-          description: Unauthorized - invalid session
-        '500':
-          description: Server error
+            '401':
+              description: Unauthorized - invalid session
+            '500':
+              description: Server error
 
-  /game/version/checkstatus:
-    get:
-      tags:
-        - Game API - Version
-      summary: Check Version Status
-      description: Checks if the game version is current and returns status information.
-      responses:
-        '200':
-          description: Version status returned
-          content:
-            application/json:
+      /game/version/checkstatus:
+        get:
+          tags:
+            - Game API - Version
+        summary: Check Version Status
+        description: Checks if the game version is current and returns status information.
+        responses:
+          '200':
+            description: Version status returned
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/VersionStatusResponse'
               example:
                 status: "current"
                 version: "1.0.0"
                 message: "Your game is up to date."
-        '500':
-          description: Server error
+          '500':
+            description: Server error
+components:
+  schemas:
+    RecentMatchHistoryResponse:
+      type: object
+      description: Response for recent match history by aliases.
+      properties:
+        result:
+          type: integer
+          description: Result code (0 indicates success)
+          example: 0
+        matchHistoryStats:
+          type: array
+          description: List of recent matches
+          items:
+            $ref: '#/components/schemas/MatchHistoryStat'
+      required: [result, matchHistoryStats]
+
+    RecentMatchHistoryByProfileIdResponse:
+      type: object
+      description: Response for recent match history by profile ID.
+      properties:
+        result:
+          type: integer
+          description: Result code (0 indicates success)
+          example: 0
+        matchHistoryStats:
+          type: array
+          description: List of recent matches
+          items:
+            $ref: '#/components/schemas/MatchHistoryStat'
+        profiles:
+          type: array
+          description: Optional profiles metadata if provided by API
+          items:
+            type: object
+            description: Profile entry (shape may vary)
+      required: [result, matchHistoryStats, profiles]
+
+    MatchHistoryStat:
+      type: object
+      description: Single match record with player membership and metadata.
+      properties:
+        id:
+          type: integer
+          description: Match identifier
+        creator_profile_id:
+          type: integer
+          description: Profile ID of the match creator
+        mapname:
+          type: string
+          description: Map name
+        matchtype_id:
+          type: integer
+          description: Match type ID
+        startgametime:
+          type: integer
+          description: Match start time (UNIX epoch seconds)
+        completiontime:
+          type: integer
+          description: Match completion time (UNIX epoch seconds)
+        matchhistorymember:
+          type: array
+          description: Players participated in the match
+          items:
+            $ref: '#/components/schemas/MatchHistoryMember'
+        slotinfo:
+          $ref: '#/components/schemas/SlotInfo'
+      required: [id, mapname, startgametime, matchhistorymember]
+
+    MatchHistoryMember:
+      type: object
+      description: Participant entry in a match.
+      properties:
+        profile_id:
+          type: integer
+          description: Player profile ID
+        race_id:
+          type: integer
+          description: Player race ID
+        teamid:
+          type: integer
+          description: Team number
+        wins:
+          type: integer
+          description: Player wins at the time
+        losses:
+          type: integer
+          description: Player losses at the time
+        outcome:
+          type: integer
+          description: Outcome code (e.g., 1 = win, 0 = loss)
+      required: [profile_id, teamid, outcome]
+
+    SlotInfo:
+      type: object
+      description: Team composition snapshot for the match.
+      properties:
+        team1:
+          type: array
+          items:
+            type: integer
+          description: Profile IDs in team 1
+        team2:
+          type: array
+          items:
+            type: integer
+          description: Profile IDs in team 2
+      additionalProperties: true
+
+    AvailableLeaderboardsResponse:
+      type: object
+      description: Response containing list of available leaderboards for the specified game.
+      properties:
+        leaderboards:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeaderboardInfo'
+      required: [leaderboards]
+
+    LeaderboardInfo:
+      type: object
+      description: Leaderboard basic information.
+      properties:
+        id:
+          type: integer
+          description: Leaderboard identifier
+        name:
+          type: string
+          description: Display name
+        description:
+          type: string
+          description: Human readable description
+      required: [id, name]
+
+    PersonalStatsResponse:
+      type: object
+      description: Response containing personal statistics for one or more profiles.
+      properties:
+        stats:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonalStat'
+      required: [stats]
+
+    PersonalStat:
+      type: object
+      description: Personal statistics entry for a leaderboard.
+      properties:
+        leaderboard_id:
+          type: integer
+          description: Leaderboard identifier
+        games_played:
+          type: integer
+          description: Total games played
+        rank:
+          type: integer
+          description: Current rank
+        wins:
+          type: integer
+          description: Total wins (if provided)
+        losses:
+          type: integer
+          description: Total losses (if provided)
+      required: [leaderboard_id]
+
+    Leaderboard2Response:
+      type: object
+      description: Leaderboard data including entries and stat group details.
+      properties:
+        leaderboardStats:
+          type: array
+          description: List of leaderboard entries
+          items:
+            $ref: '#/components/schemas/LeaderboardEntry'
+        statGroups:
+          type: object
+          description: Map of stat group id to group details
+          additionalProperties:
+            $ref: '#/components/schemas/StatGroup'
+      required: [leaderboardStats, statGroups]
+
+    LeaderboardEntry:
+      type: object
+      description: Single leaderboard entry.
+      properties:
+        profileId:
+          type: integer
+          description: Profile identifier
+        statgroup_id:
+          type: integer
+          description: Stat group identifier this entry belongs to
+        name:
+          type: string
+          description: Display name of the player or team
+        rank:
+          type: integer
+          description: Rank position
+        gamesPlayed:
+          type: integer
+          description: Number of games played
+        wins:
+          type: integer
+          description: Number of wins
+      required: [profileId, statgroup_id, name, rank]
+
+    StatGroup:
+      type: object
+      description: Stat group details describing arranged team or solo grouping.
+      properties:
+        id:
+          type: integer
+          description: Stat group identifier
+        type:
+          type: string
+          description: Group type (e.g., arrangedTeam)
+        members:
+          type: array
+          description: Members of the group
+          items:
+            $ref: '#/components/schemas/StatGroupMember'
+      required: [id, type, members]
+
+    StatGroupMember:
+      type: object
+      description: Member entry inside a stat group.
+      properties:
+        profile_id:
+          type: integer
+          description: Member profile identifier
+        name:
+          type: string
+          description: Member display name
+      required: [profile_id, name]
