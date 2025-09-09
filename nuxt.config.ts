@@ -31,7 +31,11 @@ export default defineNuxtConfig({
     ],
     defaultLocale: 'en',
   },
+  ssr: true,
   nitro: {
+    prerender: {
+      crawlLinks: true,
+    },
     experimental: {
       openAPI: true,
     },

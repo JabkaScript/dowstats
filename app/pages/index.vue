@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import type { LadderItem, LadderResponse } from '~/types/ladder'
 
+definePageMeta({
+  title: 'Ladder',
+})
+
 const { mod, server, season, mmrType } = storeToRefs(useFiltersStore())
 const search = ref('')
 const searchDebounced = refDebounced(search, 1000)
@@ -31,24 +35,6 @@ const { data, refresh, pending } = await useFetch<LadderResponse>('/api/v1/ladde
 const total = computed(() => data.value?.meta?.total || 0)
 const shownFrom = computed(() => (total.value === 0 ? 0 : items.value.length > 0 ? 1 : 0))
 const shownTo = computed(() => Math.min(items.value.length, total.value))
-
-// Sync accumulated items on first page (filters changed -> reset)
-watch(
-  () => data.value?.items,
-  (newItems) => {
-    if (page.value === 1 && Array.isArray(newItems)) {
-      items.value = [...newItems]
-    }
-  },
-  { immediate: true }
-)
-
-// Reset and refetch when filters/search change
-watch([mod, server, season, mmrType, searchDebounced], async () => {
-  page.value = 1
-  items.value = []
-  await refresh()
-})
 
 // Load next page and append
 const loadMore = async () => {
@@ -81,6 +67,24 @@ useIntersectionObserver(
   },
   { root: null, rootMargin: '200px', threshold: 0 }
 )
+
+// Sync accumulated items on first page (filters changed -> reset)
+watch(
+  () => data.value?.items,
+  (newItems) => {
+    if (page.value === 1 && Array.isArray(newItems)) {
+      items.value = [...newItems]
+    }
+  },
+  { immediate: true }
+)
+
+// Reset and refetch when filters/search change
+watch([mod, server, season, mmrType, searchDebounced], async () => {
+  page.value = 1
+  items.value = []
+  await refresh()
+})
 </script>
 
 <template>

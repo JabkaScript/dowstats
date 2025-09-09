@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 
+definePageMeta({
+  title: 'Relic API',
+})
 onMounted(() => {
   import('swagger-ui-dist/swagger-ui.css')
   // @ts-expect-error there is no types for this module
