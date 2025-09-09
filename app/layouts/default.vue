@@ -6,8 +6,13 @@ const route = useRoute()
 const items = computed<NavigationMenuItem[]>(() => [
   {
     label: 'Ladder',
-    to: '/ladder',
-    active: route.path.startsWith('/ladder'),
+    to: '/',
+    active: route.path === '/',
+  },
+  {
+    label: 'Relic API',
+    to: '/relic-api',
+    active: route.path.startsWith('/relic-api'),
   },
 ])
 </script>

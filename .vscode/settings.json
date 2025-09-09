@@ -19,5 +19,6 @@
   "vue.complete.casing.tags": "pascal",
   "[vue]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "oxc.enable": true
 }
