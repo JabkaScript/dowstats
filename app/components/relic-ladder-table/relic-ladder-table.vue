@@ -82,78 +82,81 @@ function getNickname(statGroupId: unknown) {
       </div>
     </div>
 
-    <UTable
-      v-else
-      v-model:expanded="expanded"
-      :data="leaderboardStats"
-      :columns
-      :ui="{ td: 'p-1', th: 'p-1', tr: 'even:bg-neutral-100 even:dark:bg-neutral-800' }"
-    >
-      <template #expand-cell="{ row }">
-        <UButton
-          color="neutral"
-          icon="lucide:chevron-down"
-          variant="ghost"
-          size="xs"
-          square
-          :ui="{
-            leadingIcon: [
-              'transition-transform',
-              row.getIsExpanded() ? 'duration-200 rotate-180' : '',
-            ],
-          }"
-          @click="row.toggleExpanded()"
-        />
-      </template>
-      <template #rating-header>
-        <div class="text-right">{{ t('ladder.rating') }}</div>
-      </template>
-      <template #wins-header>
-        <div class="text-right">{{ t('ladder.wins') }}</div>
-      </template>
-      <template #losses-header>
-        <div class="text-right">{{ t('ladder.losses') }}</div>
-      </template>
-      <template #winrate-header>
-        <div class="text-right">{{ t('ladder.winrate') }}</div>
-      </template>
-      <template #currentStreak-header>
-        <div class="text-right">{{ t('ladder.currentStreak') }}</div>
-      </template>
-      <template #highestRating-header>
-        <div class="text-right">{{ t('ladder.highestRating') }}</div>
-      </template>
-      <template #name-cell="{ row }">
-        {{ getNickname(row.original.statgroup_id) }}
-      </template>
-      <template #rating-cell="{ row }">
-        <div class="tabular-nums text-right w-full">{{ row.original.rating }}</div>
-      </template>
-      <template #wins-cell="{ row }">
-        <div class="tabular-nums text-right w-full">{{ row.original.wins }}</div>
-      </template>
-      <template #losses-cell="{ row }">
-        <div class="tabular-nums text-right w-full">{{ row.original.losses }}</div>
-      </template>
-      <template #winrate-cell="{ row }">
-        <div class="tabular-nums text-right w-full">
-          {{ ((row.original.wins / (row.original.wins + row.original.losses)) * 100).toFixed(2) }}%
-        </div>
-      </template>
-      <template #currentStreak-cell="{ row }">
-        <div class="tabular-nums text-right w-full">{{ row.original.streak }}</div>
-      </template>
-      <template #highestRating-cell="{ row }">
-        <div class="tabular-nums text-right w-full">{{ row.original.highestrating }}</div>
-      </template>
-      <template #expanded="{ row }">
-        <ul class="flex flex-col gap-0.5 p-1">
-          <li>{{ $t('ladder.wins') }}: {{ row.original.wins }}</li>
-          <li>{{ $t('ladder.losses') }}: {{ row.original.losses }}</li>
-          <li>{{ $t('ladder.highestRating') }}: {{ row.original.highestrating }}</li>
-          <li>{{ $t('ladder.currentStreak') }}: {{ row.original.streak }}</li>
-        </ul>
-      </template>
-    </UTable>
+    <ClientOnly v-else>
+      <UTable
+        v-model:expanded="expanded"
+        :data="leaderboardStats"
+        :columns
+        :ui="{ td: 'p-1', th: 'p-1', tr: 'even:bg-neutral-100 even:dark:bg-neutral-800' }"
+      >
+        <template #expand-cell="{ row }">
+          <UButton
+            color="neutral"
+            icon="lucide:chevron-down"
+            variant="ghost"
+            size="xs"
+            square
+            :ui="{
+              leadingIcon: [
+                'transition-transform',
+                row.getIsExpanded() ? 'duration-200 rotate-180' : '',
+              ],
+            }"
+            @click="row.toggleExpanded()"
+          />
+        </template>
+        <template #rating-header>
+          <div class="text-right">{{ t('ladder.rating') }}</div>
+        </template>
+        <template #wins-header>
+          <div class="text-right">{{ t('ladder.wins') }}</div>
+        </template>
+        <template #losses-header>
+          <div class="text-right">{{ t('ladder.losses') }}</div>
+        </template>
+        <template #winrate-header>
+          <div class="text-right">{{ t('ladder.winrate') }}</div>
+        </template>
+        <template #currentStreak-header>
+          <div class="text-right">{{ t('ladder.currentStreak') }}</div>
+        </template>
+        <template #highestRating-header>
+          <div class="text-right">{{ t('ladder.highestRating') }}</div>
+        </template>
+        <template #name-cell="{ row }">
+          {{ getNickname(row.original.statgroup_id) }}
+        </template>
+        <template #rating-cell="{ row }">
+          <div class="tabular-nums text-right w-full">{{ row.original.rating }}</div>
+        </template>
+        <template #wins-cell="{ row }">
+          <div class="tabular-nums text-right w-full">{{ row.original.wins }}</div>
+        </template>
+        <template #losses-cell="{ row }">
+          <div class="tabular-nums text-right w-full">{{ row.original.losses }}</div>
+        </template>
+        <template #winrate-cell="{ row }">
+          <div class="tabular-nums text-right w-full">
+            {{
+              ((row.original.wins / (row.original.wins + row.original.losses)) * 100).toFixed(2)
+            }}%
+          </div>
+        </template>
+        <template #currentStreak-cell="{ row }">
+          <div class="tabular-nums text-right w-full">{{ row.original.streak }}</div>
+        </template>
+        <template #highestRating-cell="{ row }">
+          <div class="tabular-nums text-right w-full">{{ row.original.highestrating }}</div>
+        </template>
+        <template #expanded="{ row }">
+          <ul class="flex flex-col gap-0.5 p-1">
+            <li>{{ $t('ladder.wins') }}: {{ row.original.wins }}</li>
+            <li>{{ $t('ladder.losses') }}: {{ row.original.losses }}</li>
+            <li>{{ $t('ladder.highestRating') }}: {{ row.original.highestrating }}</li>
+            <li>{{ $t('ladder.currentStreak') }}: {{ row.original.streak }}</li>
+          </ul>
+        </template>
+      </UTable>
+    </ClientOnly>
   </div>
 </template>
