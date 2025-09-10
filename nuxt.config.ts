@@ -39,5 +39,6 @@ export default defineNuxtConfig({
   },
   routeRules: {
     '/': { prerender: true },
+    '/relic-ladder': { isr: true },
   },
 })
