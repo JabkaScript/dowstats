@@ -6,7 +6,8 @@ interface Leaderboard {
 }
 
 const { data } = await useFetch(
-  '/api/proxy/relic/community/leaderboard/getavailableleaderboards?title=dow1-de'
+  '/api/proxy/relic/community/leaderboard/getavailableleaderboards?title=dow1-de',
+  { server: true }
 )
 const matchType = '1v1'
 const leaderboards = computed<Leaderboard[]>(

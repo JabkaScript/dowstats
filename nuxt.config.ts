@@ -37,7 +37,4 @@ export default defineNuxtConfig({
       openAPI: true,
     },
   },
-  routeRules: {
-    '/relic-ladder': { swr: 60 },
-  },
 })

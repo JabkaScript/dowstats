@@ -29,7 +29,8 @@ const columns: TableColumn<{ name: string; rating: number }>[] = [
 const expanded = ref({})
 const raceName = computed(() => name.replace('1v1_', ''))
 const { data } = await useFetch(
-  `/api/proxy/relic/community/leaderboard/getleaderboard2?title=dow1-de&leaderboard_id=${leaderboardId}&sortBy=1&start=1&count=50`
+  `/api/proxy/relic/community/leaderboard/getleaderboard2?title=dow1-de&leaderboard_id=${leaderboardId}&sortBy=1&start=1&count=50`,
+  { server: true }
 )
 const leaderboardStats = computed(() => data.value?.leaderboardStats)
 const statGroups = computed(() => data.value?.statGroups)
