@@ -36,10 +36,6 @@ export default defineNuxtConfig({
     experimental: {
       openAPI: true,
     },
-    openAPI: {
-      production: 'prerender',
-      route: '/docs',
-    },
   },
   routeRules: {
     '/relic-ladder': { swr: 60 },
