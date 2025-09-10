@@ -21,7 +21,7 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
-    "build:vercel": "rm -rf .vercel/output && nuxt build",
+    "build:vercel": "rm -rf .vercel/output/functions && nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
