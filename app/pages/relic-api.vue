@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 
+useHead({
+  title: 'Relic API | DoW Stats',
+})
 definePageMeta({
   title: 'Relic API',
+  name: 'relic-api',
 })
 onMounted(() => {
   import('swagger-ui-dist/swagger-ui.css')

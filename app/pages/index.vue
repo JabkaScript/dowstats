@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import type { LadderItem, LadderResponse } from '~/types/ladder'
 
+useHead({
+  title: 'Ladder | DoW Stats',
+})
 definePageMeta({
   title: 'Ladder',
+  name: 'dowstats-ladder',
 })
 
 const { mod, server, season, mmrType } = storeToRefs(useFiltersStore())

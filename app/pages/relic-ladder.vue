@@ -5,6 +5,14 @@ interface Leaderboard {
   isranked: number
 }
 
+useHead({
+  title: 'Relic Ladder | DoW Stats',
+})
+definePageMeta({
+  title: 'Relic Ladder',
+  name: 'relic-ladder',
+})
+
 const { data } = await useFetch(
   '/api/proxy/relic/community/leaderboard/getavailableleaderboards?title=dow1-de',
   { server: true }
