@@ -32,7 +32,7 @@ export default defineNuxtConfig({
     defaultLocale: 'en',
   },
   routeRules: {
-    '/': { prerender: true },
-    '/relic-ladder': { isr: 3600 },
+    '/': { swr: true },
+    // '/relic-ladder': { isr: 3600 },
   },
 })
