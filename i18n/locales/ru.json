@@ -13,5 +13,20 @@
   "MMR": "MMR",
   "Team": "Командный",
   "Favorite Race": "Любимая раса",
-  "Player": "Игрок"
+  "Player": "Игрок",
+  "ladder.rank": "Место",
+  "ladder.name": "Имя",
+  "ladder.currentStreak": "Текущая стрик",
+  "ladder.rating": "Рейтинг",
+  "ladder.losses": "Поражения",
+  "ladder.highestRating": "Максимальный рейтинг",
+  "race.chaos_marine": "Хаоситские Морпехи",
+  "race.dark_eldar": "Тёмные Эльдары",
+  "race.eldar": "Эльдары",
+  "race.guard": "Имперская Гвардия",
+  "race.necron": "Некроны",
+  "race.ork": "Орки",
+  "race.sisters": "Сёстры Битвы",
+  "race.space_marine": "Космодесантники",
+  "race.tau": "Тау"
 }

@@ -14,6 +14,11 @@ const items = computed<NavigationMenuItem[]>(() => [
     to: '/relic-api',
     active: route.path.startsWith('/relic-api'),
   },
+  {
+    label: 'Relic Ladder',
+    to: '/relic-ladder',
+    active: route.path.startsWith('/relic-ladder'),
+  },
 ])
 </script>
 

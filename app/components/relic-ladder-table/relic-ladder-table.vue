@@ -2,6 +2,7 @@
 import type { TableColumn } from '@nuxt/ui'
 
 const { leaderboardId, name } = defineProps<{ leaderboardId: string; name: string }>()
+const { t } = useI18n()
 const columns: TableColumn<{ name: string; rating: number }>[] = [
   {
     id: 'expand',
@@ -11,17 +12,17 @@ const columns: TableColumn<{ name: string; rating: number }>[] = [
   {
     id: 'rank',
     accessorKey: 'rank',
-    header: 'Rank',
+    header: t('ladder.rank'),
   },
   {
     id: 'name',
     accessorKey: 'name',
-    header: 'Name',
+    header: t('ladder.name'),
   },
   {
     id: 'rating',
     accessorKey: 'rating',
-    header: 'Rating',
+    header: t('ladder.rating'),
   },
 ]
 
@@ -66,6 +67,9 @@ function getNickname(statGroupId: unknown) {
           @click="row.toggleExpanded()"
         />
       </template>
+      <template #rating-header>
+        <div class="text-right">{{ t('ladder.rating') }}</div>
+      </template>
       <template #name-cell="{ row }">
         {{ getNickname(row.original.statgroup_id) }}
       </template>
@@ -74,9 +78,10 @@ function getNickname(statGroupId: unknown) {
       </template>
       <template #expanded="{ row }">
         <ul class="flex flex-col gap-0.5 p-1">
-          <li>{{ $t('Wins') }}: {{ row.original.wins }}</li>
-          <li>{{ $t('Losses') }}: {{ row.original.losses }}</li>
-          <li>{{ $t('Highest Rating') }}: {{ row.original.highestrating }}</li>
+          <li>{{ $t('ladder.wins') }}: {{ row.original.wins }}</li>
+          <li>{{ $t('ladder.losses') }}: {{ row.original.losses }}</li>
+          <li>{{ $t('ladder.highestRating') }}: {{ row.original.highestrating }}</li>
+          <li>{{ $t('ladder.currentStreak') }}: {{ row.original.streak }}</li>
         </ul>
       </template>
     </UTable>

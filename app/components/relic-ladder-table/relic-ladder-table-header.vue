@@ -1,26 +1,27 @@
 <script setup lang="ts">
 const { name } = defineProps<{ name: string }>()
+const { t } = useI18n()
 const nameFormatted = computed(() => {
   const nameNormalized = name.replaceAll('_', ' ').replace('race', '').trim()
   switch (nameNormalized) {
     case 'chaos marine':
-      return 'Chaos Marines'
+      return t('race.chaos_marine')
     case 'dark eldar':
-      return 'Dark Eldars'
+      return t('race.dark_eldar')
     case 'eldar':
-      return 'Eldars'
+      return t('race.eldar')
     case 'guard':
-      return 'Imperial Guard'
+      return t('race.guard')
     case 'necron':
-      return 'Necrons'
+      return t('race.necron')
     case 'ork':
-      return 'Orks'
+      return t('race.ork')
     case 'sisters':
-      return 'Sisters of Battle'
+      return t('race.sisters')
     case 'space marine':
-      return 'Space Marines'
+      return t('race.space_marine')
     case 'tau':
-      return 'Taus'
+      return t('race.tau')
     default:
       return nameNormalized
   }
