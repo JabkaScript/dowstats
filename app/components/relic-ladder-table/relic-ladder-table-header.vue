@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { name } = defineProps<{ name: string }>()
+const { name, isSingle } = defineProps<{ name: string; isSingle: boolean }>()
 const { t } = useI18n()
 const nameFormatted = computed(() => {
   const nameNormalized = name.replaceAll('_', ' ').replace('race', '').trim()
@@ -28,7 +28,7 @@ const nameFormatted = computed(() => {
 })
 </script>
 <template>
-  <div class="flex gap-2 items-center justify-center">
+  <div class="flex gap-2 items-center justify-center" :class="{ '!justify-start': isSingle }">
     <NuxtImg :src="`/race-icons/${name}.png`" class="w-10 h-10 rounded" />
     <div class="w">{{ nameFormatted }}</div>
   </div>

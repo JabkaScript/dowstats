@@ -31,8 +31,14 @@ export default defineNuxtConfig({
     ],
     defaultLocale: 'en',
   },
-  routeRules: {
-    '/': { swr: true },
-    // '/relic-ladder': { isr: 3600 },
+  ssr: true,
+  nitro: {
+    experimental: {
+      openAPI: true,
+    },
+    openAPI: {
+      production: 'prerender',
+      route: '/docs',
+    },
   },
 })

@@ -1,4 +1,5 @@
 {
+  "All": "All",
   "ladder.filters": "Filters",
   "ladder.searchPlaceholder": "Search...",
   "ladder.showingRangeOfTotal": "Showing {from}–{to} of {total}",
@@ -16,6 +17,8 @@
   "Player": "Player",
   "ladder.rank": "Rank",
   "ladder.currentStreak": "Current Streak",
+  "ladder.matchType": "Match Type",
+  "ladder.race": "Race",
   "ladder.name": "Name",
   "ladder.rating": "Rating",
   "ladder.losses": "Losses",
@@ -28,5 +31,6 @@
   "race.ork": "Orks",
   "race.sisters": "Sisters of Battle",
   "race.space_marine": "Space Marines",
-  "race.tau": "Taus"
+  "race.tau": "Tau",
+  "race.all": "All"
 }
