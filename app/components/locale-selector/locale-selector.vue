@@ -4,8 +4,9 @@ import { ru, en } from '@nuxt/ui/locale'
 const { locale, setLocale } = useI18n()
 
 async function updateLocale(locale: 'en' | 'ru') {
-  window.location.reload()
   setLocale(locale)
+  await nextTick()
+  window.location.reload()
 }
 </script>
 
