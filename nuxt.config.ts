@@ -37,4 +37,7 @@ export default defineNuxtConfig({
       openAPI: true,
     },
   },
+  routeRules: {
+    '/': { prerender: true },
+  },
 })
