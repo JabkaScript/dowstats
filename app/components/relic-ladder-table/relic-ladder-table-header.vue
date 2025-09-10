@@ -1,7 +1,8 @@
 <script setup lang="ts">
 const { name, isSingle } = defineProps<{ name: string; isSingle: boolean }>()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const nameFormatted = computed(() => {
+  void locale.value
   const nameNormalized = name.replaceAll('_', ' ').replace('race', '').trim()
   switch (nameNormalized) {
     case 'chaos marine':

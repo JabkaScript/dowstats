@@ -30,6 +30,13 @@ export default defineNuxtConfig({
       { code: 'ru', language: 'ru-RU', file: 'ru.json' },
     ],
     defaultLocale: 'en',
+    bundle: { fullInstall: true },
+    strategy: 'prefix_except_default',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_redirected',
+      redirectOn: 'root',
+    },
   },
   ssr: true,
   nitro: {

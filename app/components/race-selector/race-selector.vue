@@ -1,20 +1,24 @@
 <script setup lang="ts">
 // @todo: add items for other types
 const { type } = defineProps<{ type: 'relic_name' | 'relic_number' | 'dowstats' }>()
-const { t } = useI18n()
-const labels = computed(() => ({
-  csm: t('race.chaos_marine'),
-  de: t('race.dark_eldar'),
-  eld: t('race.eldar'),
-  ork: t('race.ork'),
-  guard: t('race.guard'),
-  necron: t('race.necron'),
-  tau: t('race.tau'),
-  sisters: t('race.sisters'),
-  sm: t('race.space_marine'),
-  all: t('race.all'),
-}))
+const { t, locale } = useI18n()
+const labels = computed(() => {
+  void locale.value
+  return {
+    csm: t('race.chaos_marine'),
+    de: t('race.dark_eldar'),
+    eld: t('race.eldar'),
+    ork: t('race.ork'),
+    guard: t('race.guard'),
+    necron: t('race.necron'),
+    tau: t('race.tau'),
+    sisters: t('race.sisters'),
+    sm: t('race.space_marine'),
+    all: t('race.all'),
+  }
+})
 const items = computed(() => {
+  void locale.value
   switch (type) {
     default:
       return [

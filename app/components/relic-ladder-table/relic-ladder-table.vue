@@ -6,8 +6,9 @@ const { leaderboardId, name, isSingle } = defineProps<{
   name: string
   isSingle: boolean
 }>()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const columns = computed<TableColumn<{ name: string; rating: number }>[]>(() => {
+  void locale.value
   const base = [
     {
       id: 'rank',
