@@ -41,4 +41,7 @@ export default defineNuxtConfig({
       route: '/docs',
     },
   },
+  routeRules: {
+    '/relic-ladder': { swr: 60 },
+  },
 })
