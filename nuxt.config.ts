@@ -33,9 +33,6 @@ export default defineNuxtConfig({
   },
   ssr: true,
   nitro: {
-    prerender: {
-      crawlLinks: true,
-    },
     experimental: {
       openAPI: true,
     },
@@ -43,5 +40,9 @@ export default defineNuxtConfig({
       production: 'prerender',
       route: '/docs',
     },
+  },
+  routeRules: {
+    '/': { swr: 60 },
+    '/relic-ladder': { swr: 60 },
   },
 })
