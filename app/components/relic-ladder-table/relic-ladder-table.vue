@@ -45,11 +45,9 @@ const columns = computed<TableColumn<{ name: string; rating: number }>[]>(() => 
       header: t('ladder.currentStreak'),
     })
     base.push(
-      ...[
-        { id: 'wins', accessorKey: 'wins', header: t('ladder.wins') },
-        { id: 'losses', accessorKey: 'losses', header: t('ladder.losses') },
-        { id: 'winrate', accessorKey: 'winrate', header: t('ladder.winrate') },
-      ]
+      { id: 'wins', accessorKey: 'wins', header: t('ladder.wins') },
+      { id: 'losses', accessorKey: 'losses', header: t('ladder.losses') },
+      { id: 'winrate', accessorKey: 'winrate', header: t('ladder.winrate') }
     )
   }
   return base

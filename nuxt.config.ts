@@ -24,6 +24,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   i18n: {
+    trailingSlash: true,
     langDir: 'locales',
     locales: [
       { code: 'en', language: 'en-US', file: 'en.json' },

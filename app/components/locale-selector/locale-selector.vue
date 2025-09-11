@@ -5,8 +5,6 @@ const { locale, setLocale } = useI18n()
 
 async function updateLocale(locale: 'en' | 'ru') {
   await setLocale(locale)
-  await nextTick()
-  setTimeout(() => window.location.reload())
 }
 </script>
 
