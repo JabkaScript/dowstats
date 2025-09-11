@@ -69,6 +69,13 @@ function getNickname(statGroupId: unknown) {
 
   return statGroup?.members[0].alias
 }
+function steamId(statGroupId: unknown) {
+  const statGroup = statGroups.value?.find(
+    (i: { id: string; members: { alias: string }[] }) => i.id === statGroupId
+  )
+
+  return statGroup?.members[0].name.split('/')[2]
+}
 </script>
 <template>
   <div class="flex flex-col gap-2 border border-neutral-200 p-2 rounded shadow">
@@ -122,7 +129,13 @@ function getNickname(statGroupId: unknown) {
           <div class="text-right">{{ t('ladder.highestRating') }}</div>
         </template>
         <template #name-cell="{ row }">
-          {{ getNickname(row.original.statgroup_id) }}
+          <a
+            class="hover:underline"
+            :href="`https://steamcommunity.com/profiles/${steamId(row.original.statgroup_id)}`"
+            target="_blank"
+          >
+            {{ getNickname(row.original.statgroup_id) }}
+          </a>
         </template>
         <template #rating-cell="{ row }">
           <div class="tabular-nums text-right w-full">{{ row.original.rating }}</div>
