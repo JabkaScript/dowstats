@@ -65,7 +65,7 @@ const sentinel = ref<HTMLElement | null>(null)
 useIntersectionObserver(
   sentinel,
   ([entry]) => {
-    if (entry?.isIntersecting) {
+    if (entry?.isIntersecting && !pending.value && !isLoadingMore.value) {
       loadMore()
     }
   },
