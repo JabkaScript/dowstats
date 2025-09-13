@@ -129,13 +129,9 @@ function steamId(statGroupId: unknown) {
           <div class="text-right">{{ t('ladder.highestRating') }}</div>
         </template>
         <template #name-cell="{ row }">
-          <a
-            class="hover:underline"
-            :href="`https://steamcommunity.com/profiles/${steamId(row.original.statgroup_id)}`"
-            target="_blank"
-          >
+          <NuxtLink class="hover:underline" :to="`/player/${steamId(row.original.statgroup_id)}`">
             {{ getNickname(row.original.statgroup_id) }}
-          </a>
+          </NuxtLink>
         </template>
         <template #rating-cell="{ row }">
           <div class="tabular-nums text-right w-full">{{ row.original.rating }}</div>

@@ -14,7 +14,7 @@ const config = {
   vueIndentScriptAndStyle: false,
   singleAttributePerLine: false,
   htmlWhitespaceSensitivity: 'ignore',
-  endOfLine: 'lf',
+  endOfLine: 'auto',
   overrides: [
     {
       files: ['*.yml', '*.yaml'],

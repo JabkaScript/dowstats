@@ -15,10 +15,14 @@
   "scss.lint.unknownAtRules": "ignore",
   "prettier.configPath": "prettier.config.js",
   "prettier.useEditorConfig": false,
-  "vue.complete.casing.props": "kebab",
-  "vue.complete.casing.tags": "pascal",
   "[vue]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "oxc.enable": true
+  "oxc.enable": true,
+  "explorer.fileNesting.enabled": true,
+	"explorer.fileNesting.patterns": {
+		"tsconfig.json": "tsconfig.*.json, env.d.ts",
+		"nuxt.config.*": "jsconfig*, vitest.config.*, cypress.config.*, playwright.config.*, uno.config.*, tailwind.config.*, .eslint*, eslint*, .prettier*, prettier*, .editorconfig",
+		"package.json": "package-lock.json, pnpm*, .yarnrc*, yarn*, bun.*, .npmrc"
+	},
 }

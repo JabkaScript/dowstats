@@ -1,16 +1,17 @@
 <script setup lang="ts">
 const route = useRoute()
-const id = route.params.id
+const sid = route.params.id
 const { statsType } = storeToRefs(useFiltersStore())
 const items = computed(() => {
   return [
     {
-      label: 'Dow Stats',
-      value: 'dowstats',
-    },
-    {
       label: 'Relic',
       value: 'relic',
+    },
+    {
+      label: 'Dow Stats',
+      value: 'dowstats',
+      disabled: true,
     },
   ]
 })
@@ -18,10 +19,8 @@ const items = computed(() => {
 <template>
   <UContainer>
     <UPage>
-      <UPageHeader class="py-2 mb-2">
-        <UTabs v-model="statsType" class="w-fit" :content="false" :items />
-      </UPageHeader>
+      <UTabs v-model="statsType" variant="link" class="w-fit" :content="false" :items />
+      <PlayerRelic v-if="statsType === 'relic'" :sid />
     </UPage>
-    <PlayerRelic v-if="statsType === 'relic'" />
   </UContainer>
 </template>

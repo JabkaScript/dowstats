@@ -22,7 +22,10 @@
     "race": "Раса",
     "name": "Имя",
     "rating": "Рейтинг",
-    "losses": "Поражения"
+    "losses": "Поражения",
+    "highestRating": "Наивысший рейтинг",
+    "board": "Лидерборд",
+    "total": "Итого"
   },
   "race.chaos_marine": "Хаос",
   "race.dark_eldar": "Тёмные Эльдары",
@@ -33,5 +36,12 @@
   "race.sisters": "Сёстры Битвы",
   "race.space_marine": "Космодесант",
   "race.tau": "Тау",
-  "race.all": "Все расы"
+  "race.all": "Все расы",
+  "player": {
+    "avatar": "Аватар игрока",
+    "unknownPlayer": "Неизвестный игрок",
+    "steamId": "Steam ID",
+    "steamProfile": "Профиль Steam",
+    "dowStats": "Профиль DoW Stats"
+  }
 }

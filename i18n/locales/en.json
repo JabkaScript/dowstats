@@ -22,7 +22,10 @@
     "race": "Race",
     "name": "Name",
     "rating": "Rating",
-    "losses": "Losses"
+    "losses": "Losses",
+    "highestRating": "Highest Rating",
+    "board": "Board",
+    "total": "Total"
   },
   "race.chaos_marine": "Chaos",
   "race.dark_eldar": "Dark Eldars",
@@ -33,5 +36,12 @@
   "race.sisters": "Sisters of Battle",
   "race.space_marine": "Space Marines",
   "race.tau": "Tau",
-  "race.all": "All"
+  "race.all": "All",
+  "player": {
+    "avatar": "Player Avatar",
+    "unknownPlayer": "Unknown Player",
+    "steamId": "Steam ID",
+    "steamProfile": "Steam Profile",
+    "dowStats": "DoW Stats Profile"
+  }
 }

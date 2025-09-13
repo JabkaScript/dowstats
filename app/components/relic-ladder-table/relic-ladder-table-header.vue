@@ -1,31 +1,8 @@
 <script setup lang="ts">
 const { name, isSingle } = defineProps<{ name: string; isSingle: boolean }>()
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const nameFormatted = computed(() => {
-  void locale.value
-  const nameNormalized = name.replaceAll('_', ' ').replace('race', '').trim()
-  switch (nameNormalized) {
-    case 'chaos marine':
-      return t('race.chaos_marine')
-    case 'dark eldar':
-      return t('race.dark_eldar')
-    case 'eldar':
-      return t('race.eldar')
-    case 'guard':
-      return t('race.guard')
-    case 'necron':
-      return t('race.necron')
-    case 'ork':
-      return t('race.ork')
-    case 'sisters':
-      return t('race.sisters')
-    case 'space marine':
-      return t('race.space_marine')
-    case 'tau':
-      return t('race.tau')
-    default:
-      return nameNormalized
-  }
+  return t(formatBoardName(name))
 })
 </script>
 <template>
