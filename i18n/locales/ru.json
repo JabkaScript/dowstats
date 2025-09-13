@@ -22,8 +22,7 @@
     "race": "Раса",
     "name": "Имя",
     "rating": "Рейтинг",
-    "losses": "Поражения",
-    "highestRating": "Максимальный рейтинг"
+    "losses": "Поражения"
   },
   "race.chaos_marine": "Хаос",
   "race.dark_eldar": "Тёмные Эльдары",

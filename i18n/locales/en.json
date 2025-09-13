@@ -22,8 +22,7 @@
     "race": "Race",
     "name": "Name",
     "rating": "Rating",
-    "losses": "Losses",
-    "highestRating": "Highest Rating"
+    "losses": "Losses"
   },
   "race.chaos_marine": "Chaos",
   "race.dark_eldar": "Dark Eldars",

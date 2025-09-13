@@ -91,6 +91,8 @@ export default defineEventHandler(async (event) => {
       totalWinsSolo: soloWinsExpr,
       totalGamesTeam: teamGamesExpr,
       totalWinsTeam: teamWinsExpr,
+      // Add Steam ID (sid) so frontend can use it to fetch Relic stats
+      sid: tables.players.sid,
     })
     .from(tables.playersStats)
     .innerJoin(tables.players, eq(tables.players.id, tables.playersStats.playerId))
@@ -291,6 +293,8 @@ export default defineEventHandler(async (event) => {
     name: row.name,
     avatarUrl: row.avatarUrl,
     serverId: row.serverId,
+    // Expose Steam ID for Relic API linking
+    sid: row.sid,
     modId,
     seasonId,
     mmr: row.mmr,
