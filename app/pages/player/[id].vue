@@ -18,7 +18,7 @@ const { statsType } = storeToRefs(useFiltersStore())
 </script>
 <template>
   <UContainer>
-    <UPage>
+    <UPage class="py-2">
       <!-- <UTabs v-model="statsType" variant="link" class="w-fit" :content="false" :items /> -->
       <PlayerRelic v-if="statsType === 'relic'" :sid />
     </UPage>
