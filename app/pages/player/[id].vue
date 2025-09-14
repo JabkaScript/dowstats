@@ -1,4 +1,7 @@
 <script setup lang="ts">
+definePageMeta({
+  alias: 'player',
+})
 const route = useRoute()
 const sid = route.params.id
 const { statsType } = storeToRefs(useFiltersStore())

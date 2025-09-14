@@ -7,6 +7,7 @@ const { leaderboardId, name, isSingle } = defineProps<{
   isSingle: boolean
 }>()
 const { t, locale } = useI18n()
+const localePath = useLocalePath()
 const columns = computed<TableColumn<{ name: string; rating: number }>[]>(() => {
   void locale.value
   const base = [
@@ -129,7 +130,10 @@ function steamId(statGroupId: unknown) {
           <div class="text-right">{{ t('ladder.highestRating') }}</div>
         </template>
         <template #name-cell="{ row }">
-          <NuxtLink class="hover:underline" :to="`/player/${steamId(row.original.statgroup_id)}`">
+          <NuxtLink
+            class="hover:underline"
+            :to="localePath({ name: 'player', params: { id: steamId(row.original.statgroup_id) } })"
+          >
             {{ getNickname(row.original.statgroup_id) }}
           </NuxtLink>
         </template>
