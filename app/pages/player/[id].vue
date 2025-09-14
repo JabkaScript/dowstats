@@ -1,6 +1,6 @@
 <script setup lang="ts">
 definePageMeta({
-  alias: 'player',
+  name: 'player',
 })
 const route = useRoute()
 const sid = route.params.id

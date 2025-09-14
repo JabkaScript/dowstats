@@ -1,13 +1,28 @@
 <script setup lang="ts">
-import { ru, en } from '@nuxt/ui/locale'
-
 const { locale, setLocale } = useI18n()
 
-async function updateLocale(locale: 'en' | 'ru') {
-  await setLocale(locale)
+const locales = [
+  { code: 'en', label: 'EN', flag: '🇺🇸' },
+  { code: 'ru', label: 'RU', flag: '🇷🇺' },
+]
+
+async function updateLocale(newLocale: 'en' | 'ru') {
+  await setLocale(newLocale)
 }
 </script>
 
 <template>
-  <ULocaleSelect v-model="locale" :locales="[ru, en]" @update:model-value="updateLocale" />
+  <div class="flex items-center gap-1">
+    <UButton
+      v-for="loc in locales"
+      :key="loc.code"
+      :variant="locale === loc.code ? 'solid' : 'ghost'"
+      :color="locale === loc.code ? 'primary' : 'gray'"
+      size="xs"
+      class="min-w-0 px-2 py-1"
+      @click="updateLocale(loc.code as 'en' | 'ru')"
+    >
+      <span class="text-xs font-medium">{{ loc.label }}</span>
+    </UButton>
+  </div>
 </template>

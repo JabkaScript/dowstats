@@ -38,8 +38,8 @@ const leaderboards = computed<Leaderboard[]>(
           <UFormField :label="$t('ladder.matchType')">
             <MatchTypeSelector v-model="relicMatchType" class="w-32" hide-all />
           </UFormField>
-          <UFormField :label="$t('ladder.race')">
-            <RaceSelector v-model="relicRace" class="w-64" type="relic_name" />
+          <UFormField class="w-full md:w-64" :label="$t('ladder.race')">
+            <RaceSelector v-model="relicRace" class="w-full" type="relic_name" />
           </UFormField>
         </div>
       </UPageHeader>

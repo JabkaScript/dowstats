@@ -5,6 +5,12 @@
   "Team": "Командный",
   "Favorite Race": "Любимая раса",
   "Player": "Игрок",
+  "header": {
+    "dowstats-ladder": "DoW Stats Ladder",
+    "relic-ladder": "Relic Ladder",
+    "dowstats": "DoW Stats (основной)",
+    "github": "GitHub-репозиторий"
+  },
   "ladder": {
     "filters": "Фильтры",
     "searchPlaceholder": "Поиск...",

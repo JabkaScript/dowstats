@@ -5,6 +5,12 @@
   "Team": "Team",
   "Favorite Race": "Favorite Race",
   "Player": "Player",
+  "header": {
+    "dowstats-ladder": "DoW Stats Ladder",
+    "relic-ladder": "Relic Ladder",
+    "dowstats": "DoW Stats (main)",
+    "github": "GitHub Repository"
+  },
   "ladder": {
     "filters": "Filters",
     "searchPlaceholder": "Search...",
