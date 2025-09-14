@@ -3,6 +3,7 @@ interface Props {
   avatar?: string
   alias?: string
   sid?: string
+  pid?: string
 }
 defineProps<Props>()
 const { t } = useI18n()
@@ -20,7 +21,12 @@ const { t } = useI18n()
         <h2 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
           {{ alias || t('player.unknownPlayer') }}
         </h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('player.steamId') }}: {{ sid }}</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-0">
+          {{ t('player.steamId') }}: {{ sid }}
+        </p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">
+          {{ t('player.profileId') }}: {{ pid }}
+        </p>
       </div>
       <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
         <UButton

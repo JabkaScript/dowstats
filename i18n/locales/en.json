@@ -48,6 +48,12 @@
     "unknownPlayer": "Unknown Player",
     "steamId": "Steam ID",
     "steamProfile": "Steam Profile",
-    "dowStats": "DoW Stats Profile"
+    "dowStats": "DoW Stats Profile",
+    "recent-match": "Recent Matches",
+    "profileId": "Profile ID",
+    "victory": "Victory",
+    "defeat": "Defeat",
+    "matchDuration": "Duration",
+    "map": "Map"
   }
 }

@@ -19,7 +19,12 @@ const { data: relicData } = useFetch<RelicApiResponse>(
 )
 const { data: avatar } = useFetch(`/api/v1/players/${sid}/avatar`, { server: true })
 const alias = computed(() => relicData?.value?.statGroups[0]?.members[0]?.alias)
+const profileId = computed(() => relicData?.value?.statGroups[0]?.members[0]?.profile_id)
 const title = computed(() => `${alias.value} | DoW Stats`)
+// const { data: recentMatches } = useFetch<RecentMatchesResponse>(
+//   `/api/proxy/relic/community/leaderboard/getrecentmatchhistorybyprofileid?title=dow1-de&profile_id=${profileId.value}`,
+//   { server: true }
+// )
 
 const leaderboardStats = computed(() => {
   if (!relicData?.value?.leaderboardStats) {
@@ -33,8 +38,8 @@ useHead({
 })
 </script>
 <template>
-  <PlayerProfileCard :avatar :alias :sid />
+  <PlayerProfileCard :avatar :alias :sid :pid="profileId?.toString() || ''" />
   <PlayerStatsTabs v-slot="{ item }">
-    <PlayerStatsTable :data="leaderboardStats[item.value]" />
+    <PlayerStatsTable v-if="item.value !== 'recent'" :data="leaderboardStats[item.value]" />
   </PlayerStatsTabs>
 </template>

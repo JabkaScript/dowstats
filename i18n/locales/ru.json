@@ -48,6 +48,12 @@
     "unknownPlayer": "Неизвестный игрок",
     "steamId": "Steam ID",
     "steamProfile": "Профиль Steam",
-    "dowStats": "Профиль DoW Stats"
+    "dowStats": "Профиль DoW Stats",
+    "recent-match": "Недавние матчи",
+    "profileId": "Profile ID",
+    "victory": "Победа",
+    "defeat": "Поражение",
+    "matchDuration": "Длительность",
+    "map": "Карта"
   }
 }

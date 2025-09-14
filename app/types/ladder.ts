@@ -104,3 +104,34 @@ export interface RelicApiResponse {
   statGroups: StatGroup[]
   leaderboardStats: LeaderboardStat[]
 }
+
+export interface MatchHistoryMember {
+  profile_id: number
+  race_id: number
+  teamid: number
+  wins: number
+  losses: number
+  outcome: number
+}
+
+export interface SlotInfo {
+  team1: number[]
+  team2: number[]
+}
+
+export interface MatchHistoryStat {
+  id: number
+  creator_profile_id: number
+  mapname: string
+  matchtype_id: number
+  startgametime: number
+  completiontime: number
+  slotinfo: SlotInfo
+  matchhistorymember: MatchHistoryMember[]
+}
+
+export interface RecentMatchesResponse {
+  result: RelicApiResult
+  matchHistoryStats: MatchHistoryStat[]
+  profiles: unknown[]
+}
