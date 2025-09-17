@@ -133,5 +133,5 @@ export interface MatchHistoryStat {
 export interface RecentMatchesResponse {
   result: RelicApiResult
   matchHistoryStats: MatchHistoryStat[]
-  profiles: unknown[]
+  profiles: StatGroupMember[]
 }

@@ -50,10 +50,16 @@
     "steamProfile": "Профиль Steam",
     "dowStats": "Профиль DoW Stats",
     "recent-match": "Недавние матчи",
-    "profileId": "Profile ID",
+    "profileId": "ID профиля",
     "victory": "Победа",
     "defeat": "Поражение",
     "matchDuration": "Длительность",
-    "map": "Карта"
+    "map": "Карта",
+    "date": "Дата",
+    "result": "Результат",
+    "type": "Тип",
+    "players": "Игроки",
+    "allies": "Союзники",
+    "opponents": "Оппоненты"
   }
 }

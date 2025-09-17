@@ -22,6 +22,7 @@ export default defineNuxtConfig({
   },
 
   css: ['~/assets/css/main.css'],
+  colorMode: { preference: 'system', fallback: 'dark', classSuffix: '' },
   i18n: {
     trailingSlash: true,
     langDir: 'locales',
