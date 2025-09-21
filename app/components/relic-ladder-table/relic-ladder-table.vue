@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import type { Leaderboard2Response, LeaderboardStat } from '~/types/ladder'
 
 const { leaderboardId, name, isSingle } = defineProps<{
   leaderboardId: string
@@ -8,7 +9,7 @@ const { leaderboardId, name, isSingle } = defineProps<{
 }>()
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
-const columns = computed<TableColumn<{ name: string; rating: number }>[]>(() => {
+const columns = computed<TableColumn<LeaderboardStat>[]>(() => {
   void locale.value
   const base = [
     {
@@ -56,7 +57,7 @@ const columns = computed<TableColumn<{ name: string; rating: number }>[]>(() => 
 
 const expanded = ref({})
 const raceName = computed(() => name.replace(/\d+v\d+_/g, ''))
-const { data, pending } = useFetch(
+const { data, pending } = await useFetch<Leaderboard2Response>(
   `/api/proxy/relic/community/leaderboard/getleaderboard2?title=dow1-de&leaderboard_id=${leaderboardId}&sortBy=1&start=1&count=50`,
   { cache: 'default' }
 )
@@ -64,18 +65,15 @@ const leaderboardStats = computed(() => data.value?.leaderboardStats)
 const statGroups = computed(() => data.value?.statGroups)
 
 function getNickname(statGroupId: unknown) {
-  const statGroup = statGroups.value?.find(
-    (i: { id: string; members: { alias: string }[] }) => i.id === statGroupId
-  )
+  const statGroup = statGroups.value?.find((i) => i.id === statGroupId)
 
-  return statGroup?.members[0].alias
+  return statGroup?.members[0]?.alias
 }
 function steamId(statGroupId: unknown) {
-  const statGroup = statGroups.value?.find(
-    (i: { id: string; members: { alias: string }[] }) => i.id === statGroupId
-  )
+  const statGroup = statGroups.value?.find((i) => i.id === statGroupId)
 
-  return statGroup?.members[0].name.split('/')[2]
+  const name = statGroup?.members[0]?.name
+  return name ? name.split('/')[2] : undefined
 }
 </script>
 <template>

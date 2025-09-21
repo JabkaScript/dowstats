@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { RecentMatchesResponse, RelicApiResponse } from '~/types/ladder'
+import type { RecentMatchesResponse, PersonalStatsResponse } from '~/types/ladder'
 import PlayerProfileCard from './player-profile-card.vue'
 import { groupLeaderboardStatsByMatchType } from '~/utils/stats-grouping'
 import PlayerStatsTabs from './player-stats-tabs.vue'
@@ -14,7 +14,7 @@ const { sid } = defineProps<Props>()
 const profileNames = computed(() => {
   return JSON.stringify([`/steam/${sid}`])
 })
-const { data: relicData } = await useFetch<RelicApiResponse>(
+const { data: relicData } = await useFetch<PersonalStatsResponse>(
   `/api/proxy/relic/community/leaderboard/getpersonalstat?title=dow1-de&profile_names=${profileNames.value}`,
   { server: true, cache: 'default' }
 )

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { AvailableLeaderboardsResponse } from '~/types/ladder'
+
 interface Leaderboard {
   id: number
   name: string
@@ -13,22 +15,23 @@ definePageMeta({
   name: 'relic-ladder',
 })
 
-const { data } = await useFetch(
+const { data } = await useFetch<AvailableLeaderboardsResponse>(
   '/api/proxy/relic/community/leaderboard/getavailableleaderboards?title=dow1-de',
   { server: true }
 )
 const { relicMatchType, relicRace } = storeToRefs(useFiltersStore())
 
 const extractRelicRace = (name: string) => name.match(/_([a-z_]+)_race(?:_|$)/)?.[1] ?? ''
-const leaderboards = computed<Leaderboard[]>(
-  () =>
+const leaderboards = computed<Leaderboard[]>(() => {
+  return (
     data.value?.leaderboards?.filter(
-      (i: Leaderboard) =>
+      (i) =>
         i.isranked === 1 &&
         (relicMatchType.value === 'all' || i.name.includes(relicMatchType.value)) &&
         (relicRace.value === 'all' || extractRelicRace(i.name) === relicRace.value)
     ) || []
-)
+  )
+})
 </script>
 <template>
   <UPage>

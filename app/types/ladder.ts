@@ -73,6 +73,7 @@ export interface LeaderboardStat {
   lastmatchdate: number
   highestrank: number
   highestranklevel: number
+  // present in live API, used in UI
   highestrating: number
 }
 
@@ -84,17 +85,17 @@ export interface RelicApiResult {
 export interface StatGroupMember {
   profile_id: number
   name: string
-  alias: string
-  personal_statgroup_id: number
-  xp: number
-  level: number
-  leaderboardregion_id: number
-  country: string
+  alias?: string
+  personal_statgroup_id?: number
+  xp?: number
+  level?: number
+  leaderboardregion_id?: number
+  country?: string
 }
 
 export interface StatGroup {
   id: number
-  name: string
+  name?: string
   type: number
   members: StatGroupMember[]
 }
@@ -104,6 +105,8 @@ export interface RelicApiResponse {
   statGroups: StatGroup[]
   leaderboardStats: LeaderboardStat[]
 }
+
+export type PersonalStatsResponse = RelicApiResponse
 
 export interface MatchHistoryMember {
   profile_id: number
@@ -126,7 +129,7 @@ export interface MatchHistoryStat {
   matchtype_id: number
   startgametime: number
   completiontime: number
-  slotinfo: SlotInfo
+  slotinfo?: SlotInfo
   matchhistorymember: MatchHistoryMember[]
 }
 
@@ -134,4 +137,56 @@ export interface RecentMatchesResponse {
   result: RelicApiResult
   matchHistoryStats: MatchHistoryStat[]
   profiles: StatGroupMember[]
+}
+
+// ===== Additional types from Relic API spec =====
+export interface LeaderboardMapEntry {
+  matchtype_id: number
+  statgroup_type: number
+  race_id: number
+}
+
+export interface LeaderboardInfo {
+  id: number
+  name: string
+  description?: string
+  isranked?: number
+  leaderboardmap?: LeaderboardMapEntry[]
+}
+
+export interface MatchType {
+  id: number
+  name: string
+  locstringid?: number
+}
+
+export interface Race {
+  id: number
+  name: string
+  faction_id?: number
+  locstringid?: number
+}
+
+export interface Faction {
+  id: number
+  name: string
+  locstringid?: number
+}
+
+export interface LeaderboardRegion {
+  id: number
+  name: string
+}
+
+export interface AvailableLeaderboardsResponse {
+  result: RelicApiResult
+  leaderboards: LeaderboardInfo[]
+  matchTypes?: MatchType[]
+  races?: Race[]
+  factions?: Faction[]
+  leaderboardRegions?: LeaderboardRegion[]
+}
+
+export interface Leaderboard2Response extends RelicApiResponse {
+  rankTotal?: number
 }
