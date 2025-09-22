@@ -21,13 +21,12 @@ const raceSlugById: Record<number, string> = {
   7: 'space_marine',
   8: 'tau',
 }
+const localePath = useLocalePath()
 
 const getProfileAlias = (pid: number) => {
   const p = props.profiles?.find((x) => x.profile_id === pid)
   return p?.alias || p?.name || `#${pid}`
 }
-
-// Extract Steam ID from PlayerProfile.name formatted as "steam/<sid>"
 const getSteamIdByProfileId = (pid: number): string | null => {
   const p = props.profiles?.find((x) => x.profile_id === pid)
   const name = p?.name || ''
@@ -35,10 +34,9 @@ const getSteamIdByProfileId = (pid: number): string | null => {
   return m?.[2] || null
 }
 
-// Build route to player page using Steam ID
 const profileLink = (pid: number) => {
   const sid = getSteamIdByProfileId(pid)
-  return sid ? `/player/${sid}` : ''
+  return sid ? localePath({ name: 'player', params: { id: sid } }) : ''
 }
 
 const titleCase = (s: string) =>

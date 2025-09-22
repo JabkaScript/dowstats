@@ -3,7 +3,7 @@ definePageMeta({
   name: 'player',
 })
 const route = useRoute()
-const sid = route.params.id
+const sid = route.params.id as string
 const { statsType } = storeToRefs(useFiltersStore())
 // const items = computed(() => {
 //   return [
