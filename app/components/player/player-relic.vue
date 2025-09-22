@@ -30,6 +30,10 @@ const { data: recentMatches } = await useFetch<MatchHistoryResponse>(
   }
 )
 
+const matchesSort = computed(() => {
+  return recentMatches.value?.matchHistoryStats.toSorted((a, b) => b.id - a.id)
+})
+
 const leaderboardStats = computed(() => {
   if (!relicData?.value?.leaderboardStats) {
     return {}
@@ -47,7 +51,7 @@ useHead({
     <PlayerStatsTable v-if="item.value !== 'recent'" :data="leaderboardStats[item.value]" />
     <PlayerRecentMatchesTable
       v-else
-      :matches="recentMatches?.matchHistoryStats"
+      :matches="matchesSort"
       :profile-id="profileId || 0"
       :profiles="recentMatches?.profiles"
     />
