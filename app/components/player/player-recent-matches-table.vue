@@ -1,336 +1,434 @@
 <script setup lang="ts">
-import type { MatchHistoryStat, StatGroupMember } from '~/types/ladder'
+import type { MatchHistoryItem, MatchHistoryMember, PlayerProfile } from '~/types/ladder'
 
-type PlayerItem = { id: number; name: string }
-
-type OpponentGroups = PlayerItem[][]
-
-type UnitType = 'year' | 'month' | 'day' | 'hour' | 'minute' | 'second'
-
-const props = defineProps<{
-  matches?: MatchHistoryStat[]
+interface Props {
+  matches?: MatchHistoryItem[]
   profileId: number
-  profiles?: StatGroupMember[]
-}>()
+  profiles?: PlayerProfile[]
+}
 
+const props = defineProps<Props>()
 const { t, locale } = useI18n()
-const matchTypes = useMatchTypes()
-const localePath = useLocalePath()
-const NuxtLink = resolveComponent('NuxtLink')
 
-const profileById = computed<Map<number, StatGroupMember>>(() => {
-  const map = new Map<number, StatGroupMember>()
-  for (const p of props.profiles || []) map.set(p.profile_id, p)
-  return map
-})
-
-const profileNameById = computed<Map<number, string>>(() => {
-  const map = new Map<number, string>()
-  for (const p of props.profiles || []) map.set(p.profile_id, p.alias || p.name)
-  return map
-})
-
-function getOutcomeForProfile(stat: MatchHistoryStat, pid: number) {
-  const member = stat.matchhistorymember.find((m) => m.profile_id === pid)
-  return member?.outcome === 1 ? 'win' : 'loss'
+const raceSlugById: Record<number, string> = {
+  0: 'chaos_marine',
+  1: 'dark_eldar',
+  2: 'eldar',
+  3: 'guard',
+  4: 'necron',
+  5: 'ork',
+  6: 'sisters',
+  7: 'space_marine',
+  8: 'tau',
 }
 
-function steamIdForProfileId(pid: number): string | null {
-  const prof = profileById.value.get(pid)
-  if (!prof?.name) return null
-  const s = prof.name
-  if (s.startsWith('/steam/')) return s.substring('/steam/'.length)
-  return null
+const getProfileAlias = (pid: number) => {
+  const p = props.profiles?.find((x) => x.profile_id === pid)
+  return p?.alias || p?.name || `#${pid}`
 }
 
-// Конвертация кода страны в emoji-флаг
-function flagForCountry(code?: string) {
-  if (!code || code.length !== 2) return ''
-  const cc = code.toUpperCase()
-  const codePoints = [...cc].map((c) => 127397 + c.charCodeAt(0))
+// Extract Steam ID from PlayerProfile.name formatted as "steam/<sid>"
+const getSteamIdByProfileId = (pid: number): string | null => {
+  const p = props.profiles?.find((x) => x.profile_id === pid)
+  const name = p?.name || ''
+  const m = name.split('/')
+  return m?.[2] || null
+}
+
+// Build route to player page using Steam ID
+const profileLink = (pid: number) => {
+  const sid = getSteamIdByProfileId(pid)
+  return sid ? `/player/${sid}` : ''
+}
+
+const titleCase = (s: string) =>
+  s
+    .toLowerCase()
+    .split(' ')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ')
+
+const formatMapName = (map: string) => {
+  // Remove "<n>P_" prefix like "4P_" and normalize underscores
+  const cleaned = map.replace(/^\d+P_/i, '').replace(/_/g, ' ')
+  return titleCase(cleaned)
+}
+
+const formatDateTime = (tsSec?: number) => {
+  if (!tsSec) return '-'
   try {
-    return String.fromCodePoint(...codePoints)
+    const dt = new Date(tsSec * 1000)
+    return dt.toLocaleString(locale.value)
   } catch {
-    return cc
+    return '-'
   }
 }
 
-// Группируем оппонентов по их командам (поддержка FFA/3+ команд)
-function getOpponentGroups(stat: MatchHistoryStat, selfId: number): OpponentGroups {
-  // Если есть slotinfo (обычно 2 команды) — используем его
-  if (stat.slotinfo?.team1?.length || stat.slotinfo?.team2?.length) {
-    const t1 = stat.slotinfo.team1 || []
-    const t2 = stat.slotinfo.team2 || []
-    const selfInT1 = t1.includes(selfId)
-    const opponentIds = selfInT1 ? t2 : t1
-    return [opponentIds.map((id) => ({ id, name: profileNameById.value.get(id) || String(id) }))]
-  }
-  // Иначе строим команды на основе teamid у участников (поддерживает 2+ команд)
-  const byTeam = new Map<number, number[]>()
-  for (const m of stat.matchhistorymember || []) {
-    const arr = byTeam.get(m.teamid) || []
-    arr.push(m.profile_id)
-    byTeam.set(m.teamid, arr)
-  }
-  // Определяем команду игрока
-  const selfTeamId = stat.matchhistorymember.find((m) => m.profile_id === selfId)?.teamid
-  // Собираем оппонентские команды (все, кроме selfTeamId), сортируем по teamid для стабильности
-  const opponentTeamIds = Array.from(byTeam.keys())
-    .filter((tid) => tid !== selfTeamId)
-    .sort((a, b) => a - b)
-
-  const groups: OpponentGroups = opponentTeamIds.map((tid) => {
-    const ids = byTeam.get(tid) || []
-    return ids.map((id) => ({ id, name: profileNameById.value.get(id) || String(id) }))
-  })
-  return groups
+const formatDuration = (start?: number, end?: number) => {
+  if (!start || !end || end <= start) return '—'
+  const diff = end - start
+  const m = Math.floor(diff / 60)
+  const s = Math.floor(diff % 60)
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
 }
 
-// Список союзников (члены своей команды, кроме себя)
-function getAllies(stat: MatchHistoryStat, selfId: number): PlayerItem[] {
-  if (stat.slotinfo?.team1?.length || stat.slotinfo?.team2?.length) {
-    const t1 = stat.slotinfo.team1 || []
-    const t2 = stat.slotinfo.team2 || []
-    const selfInT1 = t1.includes(selfId)
-    const teamIds = selfInT1 ? t1 : t2
-    return teamIds
-      .filter((id) => id !== selfId)
-      .map((id) => ({ id, name: profileNameById.value.get(id) || String(id) }))
+const matchTypeLabel = (id?: number) => {
+  switch (id) {
+    case 1:
+      return t('player.match1v1')
+    case 2:
+      return t('player.match2v2')
+    case 3:
+      return t('player.match3v3')
+    case 4:
+      return t('player.match4v4')
+    default:
+      return t('player.customMatch')
   }
-  const byTeam = new Map<number, number[]>()
-  for (const m of stat.matchhistorymember || []) {
-    const arr = byTeam.get(m.teamid) || []
-    arr.push(m.profile_id)
-    byTeam.set(m.teamid, arr)
+}
+
+const getSelfMember = (m: MatchHistoryItem) =>
+  m.matchhistorymember?.find((mm: MatchHistoryMember) => mm.profile_id === props.profileId)
+
+const getTeams = (m: MatchHistoryItem) => {
+  const self = getSelfMember(m)
+  const teamId = self?.teamid
+  const allies =
+    m.matchhistorymember?.filter((mm) => mm.teamid === teamId && !isObserverMember(mm)) || []
+  const opponents =
+    m.matchhistorymember?.filter((mm) => mm.teamid !== teamId && !isObserverMember(mm)) || []
+  return { self, allies, opponents }
+}
+
+const isVictory = (m: MatchHistoryItem) => {
+  const self = getSelfMember(m)
+  // Relic API uses outcome = 1 for victory, 2 for loss (based on common conventions)
+  return self?.outcome === 1
+}
+const looksLikeGenericId = (s?: string) => !!s && /^#\d+$/.test(s.trim())
+const isObserverMember = (mm: MatchHistoryMember) => {
+  const p = props.profiles?.find((x) => x.profile_id === mm.profile_id)
+  const alias = p?.alias?.trim()
+  const name = p?.name?.trim()
+  const generic = (!alias && !name) || looksLikeGenericId(alias) || looksLikeGenericId(name)
+  return mm.race_id === 0 && generic
+}
+
+// Outcome helpers
+const isWinMember = (mm: MatchHistoryMember) => mm.outcome === 1
+const outcomeClasses = (mm: MatchHistoryMember) =>
+  isWinMember(mm)
+    ? 'border-emerald-300 dark:border-emerald-500/40 bg-emerald-100/80 dark:bg-emerald-700/20'
+    : 'border-rose-300 dark:border-rose-500/40 bg-rose-100/80 dark:bg-rose-700/20'
+
+const formatDelta = (d: number | null) => {
+  if (d === null) return ''
+  const sign = d >= 0 ? '+' : ''
+  return `${sign} ${d}`
+}
+const mmrText = (mm: MatchHistoryMember) => {
+  const oldR = typeof mm.oldrating === 'number' ? mm.oldrating : null
+  const newR = typeof mm.newrating === 'number' ? mm.newrating : null
+  if (newR !== null && oldR !== null) return `${newR} ${formatDelta(newR - oldR)}`
+  if (newR !== null) return `${newR}`
+  if (oldR !== null) return `${oldR}`
+  return ''
+}
+
+// Average MMR helpers
+const ratingValue = (mm: MatchHistoryMember) => {
+  const newR = typeof mm.newrating === 'number' ? mm.newrating : null
+  const oldR = typeof mm.oldrating === 'number' ? mm.oldrating : null
+  return newR ?? oldR ?? null
+}
+
+const averageMMR = (members: MatchHistoryMember[]) => {
+  const vals = members.map((m) => ratingValue(m)).filter((v): v is number => typeof v === 'number')
+  if (vals.length === 0) return null
+  const avg = vals.reduce((a, b) => a + b, 0) / vals.length
+  return Math.round(avg)
+}
+
+const teamAvgs = (m: MatchHistoryItem) => {
+  const { allies, opponents } = getTeams(m)
+  return {
+    allies: averageMMR(allies),
+    opponents: averageMMR(opponents),
   }
-  const selfTeamId = stat.matchhistorymember.find((m) => m.profile_id === selfId)?.teamid
-  const ids = (selfTeamId != null ? byTeam.get(selfTeamId) : undefined) || []
-  return ids
-    .filter((id) => id !== selfId)
-    .map((id) => ({ id, name: profileNameById.value.get(id) || String(id) }))
 }
 
-// Format duration in M:SS from seconds
-function formatDuration(sec?: number) {
-  if (!sec || sec <= 0) return '—'
-  const m = Math.floor(sec / 60)
-  const s = Math.floor(sec % 60)
-  return `${m}:${s.toString().padStart(2, '0')}`
-}
+// --- Maps: resolve human-readable name and image from /public/maps ---
+const normalizeMapKey = (s?: string) =>
+  (s || '').replace(/\$/g, '').trim().toLowerCase().replace(/\s+/g, '_')
 
-function formatAbsolute(dt?: Date) {
-  if (!dt) return '—'
-  const l = isRef(locale) ? (locale.value as unknown as string) : undefined
-  return dt.toLocaleString(l, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-  })
-}
+const mapsMap = ref<Record<string, string>>({})
+const nameToSlug = ref<Record<string, string>>({})
+const availableSlugs = ref<Set<string>>(new Set())
 
-function formatRelative(tsMs?: number) {
-  if (!tsMs) return ''
-  const diffMs = tsMs - Date.now()
-  const absMs = Math.abs(diffMs)
-  const units: Array<[UnitType, number]> = [
-    ['year', 365 * 24 * 60 * 60 * 1000],
-    ['month', 30 * 24 * 60 * 60 * 1000],
-    ['day', 24 * 60 * 60 * 1000],
-    ['hour', 60 * 60 * 1000],
-    ['minute', 60 * 1000],
-    ['second', 1000],
-  ]
-  const found = units.find(([, uMs]) => absMs >= uMs)
-  const [unit, msInUnit] = found || units[units.length - 1]
-  const value = Math.round(diffMs / msInUnit)
+onMounted(async () => {
   try {
-    const l = isRef(locale) ? (locale.value as unknown as string) : undefined
-    const rtf = new Intl.RelativeTimeFormat(l, { numeric: 'auto' })
-    return rtf.format(value, unit)
+    const raw = await $fetch<Record<string, string>>('/maps/mapsWithNumKeyCode.json')
+    const normalized: Record<string, string> = {}
+    for (const [k, v] of Object.entries(raw || {})) {
+      normalized[normalizeMapKey(k)] = v
+    }
+    mapsMap.value = normalized
   } catch {
-    const v = Math.abs(value)
-    const unitMap: Record<UnitType, { one: string; many: string }> = {
-      second: { one: 'sec', many: 'secs' },
-      minute: { one: 'min', many: 'mins' },
-      hour: { one: 'hr', many: 'hrs' },
-      day: { one: 'day', many: 'days' },
-      month: { one: 'mo', many: 'mos' },
-      year: { one: 'yr', many: 'yrs' },
-    }
-    const label = v === 1 ? unitMap[unit].one : unitMap[unit].many
-    return diffMs < 0 ? `${v} ${label} ago` : `in ${v} ${label}`
+    mapsMap.value = {}
   }
-}
-
-const columns = computed(() => [
-  { id: 'date', accessorKey: 'date', header: t('player.date') },
-  { id: 'type', accessorKey: 'type', header: t('player.type') },
-  { id: 'map', accessorKey: 'map', header: t('player.map') },
-  { id: 'opponents', accessorKey: 'opponents', header: t('player.players') },
-  { id: 'result', accessorKey: 'result', header: t('player.result') },
-  { id: 'duration', accessorKey: 'duration', header: t('player.matchDuration') },
-])
-
-const data = computed(() => {
-  const rows = (props.matches || []).map((m) => {
-    const startMs = m.startgametime ? m.startgametime * 1000 : undefined
-    const durationSec = Math.max(0, (m.completiontime ?? 0) - (m.startgametime ?? 0))
-    const outcome = getOutcomeForProfile(m, props.profileId)
-
-    const opponentGroups = getOpponentGroups(m, props.profileId)
-    const opponentsFlat: PlayerItem[] = opponentGroups.flat()
-    const allies = getAllies(m, props.profileId)
-
-    return {
-      date: startMs ? formatAbsolute(new Date(startMs)) : '—',
-      type: matchTypes[m.matchtype_id as keyof typeof matchTypes] ?? String(m.matchtype_id),
-      map: m.mapname || '—',
-      opponents: opponentsFlat.map((p) => p.name).join(', '),
-      opponentsGroups: opponentGroups,
-      allies,
-      result: outcome,
-      duration: formatDuration(durationSec),
-      timestamp: startMs ?? 0,
-      relative: startMs ? formatRelative(startMs) : '',
-      _raw: m,
+  try {
+    const allMaps = await $fetch<Record<string, string>>('/maps/allMaps.json')
+    const rev: Record<string, string> = {}
+    for (const [slug, name] of Object.entries(allMaps || {})) {
+      rev[(name || '').trim()] = slug
     }
-  })
-  return rows.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))
+    nameToSlug.value = rev
+    availableSlugs.value = new Set(Object.keys(allMaps || {}))
+  } catch {
+    nameToSlug.value = {}
+    availableSlugs.value = new Set()
+  }
 })
 
-// Вспомогательное: текст для тултипа по профилю
-function tooltipTextFor(id: number): string {
-  const p = profileById.value.get(id)
-  if (!p) return ''
-  const parts: string[] = []
-  const flag = flagForCountry(p.country)
-  if (flag) parts.push(flag)
-  if (p.country) parts.push(p.country.toUpperCase())
-  if (p.level != null) parts.push(`Lv. ${p.level}`)
-  if (p.xp != null) parts.push(`${p.xp} XP`)
-  return parts.join(' • ')
+const mapHumanName = (map?: string) => {
+  if (!map) return '-'
+  const k1 = normalizeMapKey(map)
+  const k2 = k1.replace(/^\d+p_/, '')
+  return mapsMap.value[k1] || mapsMap.value[k2] || formatMapName(map)
+}
+
+const mapImageSrc = (map?: string) => {
+  if (!map) return '/maps/default.jpg'
+  const k = normalizeMapKey(map)
+  const human = mapsMap.value[k] || mapsMap.value[k.replace(/^\d+p_/, '')]
+  if (human) {
+    const slug = nameToSlug.value[human]
+    if (slug) return `/maps/${slug}${slug.endsWith('.jpg') ? '' : '.jpg'}`
+  }
+  // Try known slugs from allMaps.json
+  if (availableSlugs.value.has(k)) return `/maps/${k}.jpg`
+  const rawSlug = (map || '').replace(/\$/g, '').trim().toLowerCase()
+  if (availableSlugs.value.has(rawSlug)) return `/maps/${rawSlug}.jpg`
+  if (rawSlug.includes('_')) {
+    const spaceSlug = rawSlug.replace(/_/g, ' ')
+    if (availableSlugs.value.has(spaceSlug)) return `/maps/${spaceSlug}.jpg`
+  }
+  if (rawSlug.includes(' ')) {
+    const underscoreSlug = rawSlug.replace(/\s+/g, '_')
+    if (availableSlugs.value.has(underscoreSlug)) return `/maps/${underscoreSlug}.jpg`
+  }
+  // Fallback: normalized slug
+  return `/maps/${k}.jpg`
+}
+
+// Fallback handling for map thumbnails
+const mapImgErrored = ref<Record<string, boolean>>({})
+const mapKey = (m: MatchHistoryItem, idx: number) => String(m.id ?? idx)
+const mapSrcWithFallback = (m: MatchHistoryItem, idx: number) => {
+  const key = mapKey(m, idx)
+  if (mapImgErrored.value[key]) return '/maps/default.jpg'
+  return mapImageSrc(m.mapname)
+}
+const onMapImgError = (key: string) => {
+  mapImgErrored.value[key] = true
 }
 </script>
+
 <template>
-  <UTable
-    :data="data"
-    :columns="columns"
-    class="border border-accented rounded-lg bg-default/40 glow-card"
-    :ui="{
-      td: 'p-2 md:p-3 text-sm',
-      th: 'p-2 md:p-3 bg-elevated/80 uppercase tracking-wider text-[11px] text-dimmed',
-      tr: 'group odd:bg-elevated/30 even:bg-elevated/50 hover:bg-primary/10 hover:ring-1 hover:ring-primary/15 transition-colors',
-    }"
-  >
-    <template #date-cell="{ row }">
-      <div class="flex flex-col">
-        <span>{{ row.getValue('date') }}</span>
-        <span v-if="row.original.relative" class="text-xs text-neutral-500 dark:text-neutral-400">
-          {{ row.original.relative }}
-        </span>
-      </div>
-    </template>
-
-    <template #opponents-cell="{ row }">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
-        <div>
-          <div class="text-[10px] uppercase tracking-wider text-dimmed mb-1">
-            {{ t('player.allies') }}
-          </div>
-          <div class="flex flex-wrap items-center gap-1">
-            <template v-if="row.original.allies?.length">
-              <UTooltip
-                v-for="p in row.original.allies as PlayerItem[]"
-                :key="p.id"
-                :text="tooltipTextFor(p.id)"
-                :popper="{ placement: 'top' }"
+  <section class="space-y-4">
+    <UCard
+      v-for="(m, idx) in props.matches || []"
+      :key="m.id ?? idx"
+      :ui="{ body: 'p-0' }"
+      class="overflow-hidden"
+    >
+      <template #header>
+        <div class="flex items-start justify-between">
+          <div class="flex gap-1 justify-between w-full">
+            <div class="flex flex-col items-start gap-2">
+              <div class="flex gap-1">
+                <UBadge :label="matchTypeLabel(m.matchtype_id)" variant="outline" />
+                <UBadge v-if="m.description === 'AUTOMATCH'" label="AUTO" variant="outline" />
+              </div>
+              <div
+                class="flex flex-wrap items-center gap-2 sm:gap-3 text-neutral-600 dark:text-zinc-300"
               >
-                <UBadge color="primary" variant="subtle" class="px-2 py-0.5 text-xs">
-                  <component
-                    :is="steamIdForProfileId(p.id) ? NuxtLink : 'span'"
-                    :to="
-                      steamIdForProfileId(p.id)
-                        ? localePath({ name: 'player', params: { id: steamIdForProfileId(p.id) } })
-                        : undefined
-                    "
-                    class="hover:underline"
-                  >
-                    {{ p.name }}
-                  </component>
-                </UBadge>
-              </UTooltip>
-            </template>
-            <template v-else>
-              <span class="text-neutral-500">—</span>
-            </template>
+                <NuxtImg
+                  :src="mapSrcWithFallback(m, idx)"
+                  :alt="mapHumanName(m.mapname)"
+                  width="256"
+                  height="256"
+                  sizes="(max-width: 640px) 192px, 256px"
+                  class="w-32 h-32 rounded-sm ring-1 ring-orange-200/50 dark:ring-orange-500/20 object-cover"
+                  @error="onMapImgError(String(m.id ?? idx))"
+                />
+                <span class="font-bold text-sm sm:text-base">
+                  {{ mapHumanName(m.mapname) }}
+                </span>
+
+                <span class="opacity-60">•</span>
+                <span class="text-xs">
+                  {{ t('player.matchDuration') }}:
+                  {{ formatDuration(m.startgametime, m.completiontime) }}
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <UBadge
+                variant="soft"
+                :label="`${t('player.date')}: ${formatDateTime(m.completiontime || m.startgametime)}`"
+              />
+            </div>
           </div>
         </div>
-        <div>
-          <div class="text-[10px] uppercase tracking-wider text-dimmed mb-1">
-            {{ t('player.opponents') }}
+      </template>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
+        <div class="pr-3">
+          <div class="flex items-center gap-2 mb-2">
+            <span
+              :class="
+                isVictory(m)
+                  ? 'text-emerald-800 dark:text-emerald-300'
+                  : 'text-rose-800 dark:text-rose-300'
+              "
+              class="font-semibold"
+            >
+              {{ t('player.allies') }}
+            </span>
           </div>
-          <div class="flex flex-wrap items-center gap-1">
-            <template v-if="row.original.opponentsGroups?.length">
-              <template v-for="(group, gi) in row.original.opponentsGroups" :key="gi">
-                <div class="flex flex-wrap gap-1 items-center">
-                  <UTooltip
-                    v-for="p in group as PlayerItem[]"
-                    :key="p.id"
-                    :text="tooltipTextFor(p.id)"
-                    :popper="{ placement: 'top' }"
+          <ul class="space-y-2">
+            <li
+              v-for="ally in getTeams(m).allies"
+              :key="ally.profile_id"
+              class="flex items-center gap-3 px-3 py-2 rounded border"
+              :class="[outcomeClasses(ally)]"
+            >
+              <UAvatar
+                :src="`/race-icons/${raceSlugById[ally.race_id]}_race.png`"
+                size="md"
+                class="rounded-md shadow"
+              />
+              <div class="flex-1">
+                <div class="flex items-center justify-between gap-2">
+                  <NuxtLink
+                    v-if="profileLink(ally.profile_id)"
+                    :to="profileLink(ally.profile_id)"
+                    class="text-neutral-900 dark:text-zinc-100 font-medium hover:underline"
                   >
-                    <UBadge color="neutral" variant="subtle" class="px-2 py-0.5 text-xs">
-                      <component
-                        :is="steamIdForProfileId(p.id) ? NuxtLink : 'span'"
-                        :to="
-                          steamIdForProfileId(p.id)
-                            ? localePath({
-                                name: 'player',
-                                params: { id: steamIdForProfileId(p.id) },
-                              })
-                            : undefined
-                        "
-                        class="hover:underline"
-                      >
-                        {{ p.name }}
-                      </component>
-                    </UBadge>
-                  </UTooltip>
+                    {{ getProfileAlias(ally.profile_id) }}
+                  </NuxtLink>
+                  <span v-else class="text-neutral-900 dark:text-zinc-100 font-medium">
+                    {{ getProfileAlias(ally.profile_id) }}
+                  </span>
+                  <span
+                    v-if="mmrText(ally)"
+                    :class="
+                      isWinMember(ally)
+                        ? 'text-emerald-800 dark:text-emerald-300'
+                        : 'text-rose-800 dark:text-rose-300'
+                    "
+                    class="text-sm font-semibold text-right"
+                  >
+                    {{ mmrText(ally) }}
+                  </span>
                 </div>
-                <span v-if="gi < row.original.opponentsGroups.length - 1" class="mx-1 text-dimmed">
-                  ⚔
-                </span>
-              </template>
-            </template>
-            <template v-else>
-              <span class="text-neutral-500">—</span>
-            </template>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <div
+          class="pl-3 border-t md:border-t-0 md:border-l border-neutral-200 dark:border-neutral-800"
+        >
+          <div class="flex items-center gap-2 mb-2">
+            <span
+              :class="
+                isVictory(m)
+                  ? 'text-rose-800 dark:text-rose-300'
+                  : 'text-emerald-800 dark:text-emerald-300'
+              "
+              class="font-semibold"
+            >
+              {{ t('player.opponents') }}
+            </span>
           </div>
+          <ul class="space-y-2">
+            <li
+              v-for="opp in getTeams(m).opponents"
+              :key="opp.profile_id"
+              class="flex items-center gap-3 px-3 py-2 rounded border"
+              :class="[outcomeClasses(opp)]"
+            >
+              <UAvatar
+                :src="`/race-icons/${raceSlugById[opp.race_id]}_race.png`"
+                size="md"
+                class="rounded-sm shadow"
+              />
+              <div class="flex-1">
+                <div class="flex items-center justify-between gap-2">
+                  <NuxtLink
+                    v-if="profileLink(opp.profile_id)"
+                    :to="profileLink(opp.profile_id)"
+                    class="text-neutral-900 dark:text-zinc-100 font-medium hover:underline"
+                  >
+                    {{ getProfileAlias(opp.profile_id) }}
+                  </NuxtLink>
+                  <span v-else class="text-neutral-900 dark:text-zinc-100 font-medium">
+                    {{ getProfileAlias(opp.profile_id) }}
+                  </span>
+                  <span
+                    v-if="mmrText(opp)"
+                    :class="
+                      isWinMember(opp)
+                        ? 'text-emerald-800 dark:text-emerald-300'
+                        : 'text-rose-800 dark:text-rose-300'
+                    "
+                    class="text-sm tabular-nums text-right font-semibold"
+                  >
+                    {{ mmrText(opp) }}
+                  </span>
+                </div>
+              </div>
+            </li>
+          </ul>
         </div>
       </div>
-    </template>
+      <template #footer>
+        <div
+          class="flex flex-wrap items-center justify-between gap-2 px-3 py-2 sm:px-4 sm:py-3 text-xs"
+        >
+          <div class="flex items-center gap-2 text-neutral-700 dark:text-zinc-300">
+            <span
+              :class="
+                isVictory(m)
+                  ? 'text-emerald-800 dark:text-emerald-300'
+                  : 'text-rose-800 dark:text-rose-300'
+              "
+              class="font-semibold"
+            >
+              {{ t('player.avgMmrAllies') }}:
+              {{ teamAvgs(m).allies ?? '—' }}
+            </span>
+            <span class="opacity-60">vs</span>
+            <span
+              :class="
+                isVictory(m)
+                  ? 'text-rose-800 dark:text-rose-300'
+                  : 'text-emerald-800 dark:text-emerald-300'
+              "
+              class="font-semibold"
+            >
+              {{ t('player.avgMmrOpponents') }}: {{ teamAvgs(m).opponents ?? '—' }}
+            </span>
+          </div>
+        </div>
+      </template>
+    </UCard>
 
-    <template #result-cell="{ row }">
-      <UBadge
-        :color="row.getValue('result') === 'win' ? 'success' : 'error'"
-        variant="soft"
-        size="lg"
-        class="font-semibold tracking-wide ring-1 shadow-sm"
-        :class="row.getValue('result') === 'win' ? 'ring-success/40' : 'ring-error/40'"
-      >
-        {{ row.getValue('result') === 'win' ? t('player.victory') : t('player.defeat') }}
-      </UBadge>
-    </template>
-
-    <template #duration-header>
-      <div class="text-right">{{ t('player.matchDuration') }}</div>
-    </template>
-    <template #duration-cell="{ row }">
-      <div class="text-right">{{ row.getValue('duration') }}</div>
-    </template>
-  </UTable>
+    <div v-if="!props.matches || props.matches.length === 0" class="text-center py-8">
+      <p class="text-neutral-500 dark:text-zinc-400">{{ t('player.noRecentMatches') }}</p>
+    </div>
+  </section>
 </template>

@@ -60,6 +60,14 @@
     "type": "Тип",
     "players": "Игроки",
     "allies": "Союзники",
-    "opponents": "Оппоненты"
+    "opponents": "Оппоненты",
+    "avgMmrAllies": "Ср. MMR союзников",
+    "avgMmrOpponents": "Ср. MMR противников",
+    "noRecentMatches": "Недавние матчи не найдены.",
+    "customMatch": "Пользовательский",
+    "match1v1": "1v1",
+    "match2v2": "2v2",
+    "match3v3": "3v3",
+    "match4v4": "4v4"
   }
 }

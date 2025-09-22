@@ -60,6 +60,14 @@
     "type": "Type",
     "players": "Players",
     "allies": "Allies",
-    "opponents": "Opponents"
+    "opponents": "Opponents",
+    "noRecentMatches": "No recent matches found.",
+    "customMatch": "Custom",
+    "match1v1": "1v1",
+    "match2v2": "2v2",
+    "match3v3": "3v3",
+    "match4v4": "4v4",
+    "avgMmrAllies": "Avg. MMR (allies)",
+    "avgMmrOpponents": "Avg. MMR (opponents)"
   }
 }

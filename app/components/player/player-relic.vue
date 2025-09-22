@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { RecentMatchesResponse, PersonalStatsResponse } from '~/types/ladder'
+import type { MatchHistoryResponse, PlayerStatsResponse } from '~/types/ladder'
 import PlayerProfileCard from './player-profile-card.vue'
 import { groupLeaderboardStatsByMatchType } from '~/utils/stats-grouping'
 import PlayerStatsTabs from './player-stats-tabs.vue'
@@ -14,7 +14,7 @@ const { sid } = defineProps<Props>()
 const profileNames = computed(() => {
   return JSON.stringify([`/steam/${sid}`])
 })
-const { data: relicData } = await useFetch<PersonalStatsResponse>(
+const { data: relicData } = await useFetch<PlayerStatsResponse>(
   `/api/proxy/relic/community/leaderboard/getpersonalstat?title=dow1-de&profile_names=${profileNames.value}`,
   { server: true, cache: 'default' }
 )
@@ -22,10 +22,10 @@ const { data: avatar } = await useFetch(`/api/v1/players/${sid}/avatar`, { serve
 const alias = computed(() => relicData?.value?.statGroups[0]?.members[0]?.alias)
 const profileId = computed(() => relicData?.value?.statGroups[0]?.members[0]?.profile_id)
 const title = computed(() => `${alias.value} | DoW Stats`)
-const { data: recentMatches } = await useFetch<RecentMatchesResponse>(
+const { data: recentMatches } = await useFetch<MatchHistoryResponse>(
   `/api/proxy/relic/community/leaderboard/getrecentmatchhistorybyprofileid`,
   {
-    server: false,
+    server: true,
     query: { sortBy: 1, profile_id: profileId.value, title: 'dow1-de', count: 100 },
   }
 )
