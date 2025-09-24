@@ -388,7 +388,7 @@ export const players = mysqlTable(
     avatarUrl: text('avatar_url'),
     avatarUrlBig: text('avatar_url_big').notNull(),
     time: int().default(0),
-    sid: bigint({ mode: 'number' }),
+    sid: bigint({ mode: 'bigint' }),
     apm: float().notNull(),
     apmGameCounter: int('apm_game_counter').default(0).notNull(),
     p1IsCalibrate: int('p1_is_calibrate').default(0).notNull(),
@@ -430,7 +430,9 @@ export const playersPd = mysqlTable(
   'players_pd',
   {
     id: int().autoincrement().notNull(),
-    playerId: int('player_id').notNull(),
+    playerId: int('player_id')
+      .notNull()
+      .references(() => players.id),
     ip: varchar({ length: 15 }).notNull(),
     machineUniqueId: varchar('machine_unique_id', { length: 36 }),
   },
@@ -446,9 +448,15 @@ export const playersStats = mysqlTable(
   'players_stats',
   {
     id: int().autoincrement().notNull(),
-    playerId: int('player_id').notNull(),
-    seasonId: int('season_id').notNull(),
-    modId: int('mod_id').notNull(),
+    playerId: int('player_id')
+      .notNull()
+      .references(() => players.id),
+    seasonId: int('season_id')
+      .notNull()
+      .references(() => seasons.id),
+    modId: int('mod_id')
+      .notNull()
+      .references(() => mods.id),
     modVersion: text('mod_version'),
     '1X11': int('1x1_1').default(0).notNull(),
     '1X11W': int('1x1_1w').default(0).notNull(),

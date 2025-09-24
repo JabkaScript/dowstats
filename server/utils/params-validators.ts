@@ -1,21 +1,63 @@
-import { sql, eq, desc } from 'drizzle-orm'
+import { sql, eq, desc, like } from 'drizzle-orm'
 import { createError } from 'h3'
 import type { LadderQuery, WhereCondition } from '~~/server/interfaces/ladder'
-import { tables, type useDrizzle } from './drizzle'
+import { tables, useDrizzle } from './drizzle'
+import { players } from '../database/schema'
 
 export type DB = ReturnType<typeof useDrizzle>
 
-export function parseModId(query: Partial<LadderQuery>): number {
-  const modId = Number(query.mod)
-  if (!modId || Number.isNaN(modId)) {
+export async function parseModId(
+  query: Partial<LadderQuery>,
+  db: DB,
+  required = false
+): Promise<number> {
+  const providedId = query.mod
+  // not required and no id - return dxp2
+  if (!required && !providedId) {
+    const dxp2Mod = await db
+      .select({ id: tables.mods.id })
+      .from(tables.mods)
+      .where(eq(tables.mods.technicalName, 'dxp2'))
+      .limit(1)
+    return dxp2Mod[0]?.id || 0
+  }
+  if (providedId) {
+    const mod = await db
+      .select({ id: tables.mods.id })
+      .from(tables.mods)
+      .where(
+        or(eq(tables.mods.id, Number(providedId)), like(tables.mods.technicalName, `${providedId}`))
+      )
+      .limit(1)
+    if (mod[0]?.id) {
+      return mod[0].id
+    }
+  }
+  // required
+  if (required && !providedId) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'Query parameter "mod" (mod_id) is required and must be an integer.',
+      statusMessage:
+        "Query parameter 'mod' (mod_id or mod_tech_name) is required and must be an integer or a string.",
     })
   }
-  return modId
+  return Number(providedId)
 }
 
+export async function getPlayerId(id?: string): Promise<number> {
+  const providedId = id
+  if (!providedId) {
+    throw Error("Parameter 'id' must be not null.")
+  }
+  const db = useDrizzle()
+  const user = await db
+    .select({ id: players.id })
+    .from(tables.players)
+    // @ts-expect-error can't safe parse BigInt - so just pass it straigt to base
+    .where(or(eq(tables.players.id, providedId), eq(tables.players.sid, providedId)))
+    .limit(1)
+  return user[0]?.id || 0
+}
 export function parseMmrType(query: Partial<LadderQuery>): 'solo' | 'team' {
   const mmrType = (query.mmrType || 'solo').toLowerCase() as 'solo' | 'team'
   if (mmrType !== 'solo' && mmrType !== 'team') {
@@ -122,7 +164,7 @@ export function getTotalWinsExpr(mmrType: 'solo' | 'team') {
   return mmrType === 'solo' ? soloWinsSum : teamWinsSum
 }
 
-export async function resolveSeasonId(db: DB, providedSeason?: number): Promise<number | null> {
+export async function resolveSeasonId(db: DB, providedSeason?: number): Promise<number> {
   if (providedSeason) {
     const seasonExists = await db
       .select({ id: tables.seasons.id })
@@ -131,7 +173,7 @@ export async function resolveSeasonId(db: DB, providedSeason?: number): Promise<
       .limit(1)
 
     const id = seasonExists[0]?.id
-    return id ?? null
+    return id || 1
   }
 
   // active first

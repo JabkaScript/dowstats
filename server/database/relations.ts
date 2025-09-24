@@ -6,6 +6,8 @@ import {
   banType,
   playersBanned,
   players,
+  playersPd,
+  playersStats,
   seasons,
   seasonModRacesWinrate,
   servers,
@@ -25,6 +27,7 @@ export const modsRacesRelations = relations(modsRaces, ({ one }) => ({
 export const modsRelations = relations(mods, ({ many }) => ({
   modsRaces: many(modsRaces),
   seasonModRacesWinrates: many(seasonModRacesWinrate),
+  playersStats: many(playersStats),
 }))
 
 export const racesRelations = relations(races, ({ many }) => ({
@@ -49,6 +52,30 @@ export const banTypeRelations = relations(banType, ({ many }) => ({
 
 export const playersRelations = relations(players, ({ many }) => ({
   playersBanneds: many(playersBanned),
+  playersPds: many(playersPd),
+  playersStats: many(playersStats),
+}))
+
+export const playersPdRelations = relations(playersPd, ({ one }) => ({
+  player: one(players, {
+    fields: [playersPd.playerId],
+    references: [players.id],
+  }),
+}))
+
+export const playersStatsRelations = relations(playersStats, ({ one }) => ({
+  player: one(players, {
+    fields: [playersStats.playerId],
+    references: [players.id],
+  }),
+  season: one(seasons, {
+    fields: [playersStats.seasonId],
+    references: [seasons.id],
+  }),
+  mod: one(mods, {
+    fields: [playersStats.modId],
+    references: [mods.id],
+  }),
 }))
 
 export const seasonModRacesWinrateRelations = relations(seasonModRacesWinrate, ({ one }) => ({
@@ -72,6 +99,7 @@ export const seasonModRacesWinrateRelations = relations(seasonModRacesWinrate, (
 
 export const seasonsRelations = relations(seasons, ({ many }) => ({
   seasonModRacesWinrates: many(seasonModRacesWinrate),
+  playersStats: many(playersStats),
 }))
 
 export const serversRelations = relations(servers, ({ many }) => ({

@@ -1,4 +1,4 @@
-import { and, eq, or } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { tables, useDrizzle } from '~~/server/utils/drizzle'
 import {
   parseModId,
@@ -6,7 +6,8 @@ import {
   resolveSeasonId,
   getTotalGamesExpr,
   getTotalWinsExpr,
-} from '~~/server/utils/ladderParams'
+  getPlayerId,
+} from '~~/server/utils/params-validators'
 
 defineRouteMeta({
   openAPI: {
@@ -23,9 +24,8 @@ defineRouteMeta({
       {
         in: 'query',
         name: 'mod',
-        required: true,
-        description: 'Mod ID (mod_id) to fetch stats for',
-        schema: { type: 'integer' },
+        description: 'Mod ID or Mod tech_name to fetch stats for. If not provided — dxp2 is used.',
+        schema: { type: 'integer', default: 'dxp2' },
       },
       {
         in: 'query',
@@ -46,26 +46,13 @@ defineRouteMeta({
 
 export default defineEventHandler(async (event) => {
   const db = useDrizzle()
-
   const idParam = getRouterParam(event, 'id')
-  const playerId = Number(idParam)
-
-  if (!playerId || Number.isNaN(playerId)) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Path parameter 'id' must be a positive integer.",
-    })
-  }
 
   const query = getQuery(event)
-  const modId = parseModId(query)
+  const playerId = await getPlayerId(idParam)
+  const modId = await parseModId(query, db)
   const providedSeason = parseProvidedSeason(query)
-
   const seasonId = await resolveSeasonId(db, providedSeason)
-
-  if (!seasonId) {
-    return { item: null, meta: { playerId, modId, seasonId: null } }
-  }
 
   const soloGamesExpr = getTotalGamesExpr('solo')
   const soloWinsExpr = getTotalWinsExpr('solo')
@@ -89,10 +76,10 @@ export default defineEventHandler(async (event) => {
       totalWinsTeam: teamWinsExpr,
     })
     .from(tables.playersStats)
-    .innerJoin(tables.players, eq(tables.players.id, tables.playersStats.playerId))
+    .leftJoin(tables.players, eq(tables.players.id, tables.playersStats.playerId))
     .where(
       and(
-        or(eq(tables.players.sid, playerId)),
+        eq(tables.players.id, playerId),
         eq(tables.playersStats.modId, modId),
         eq(tables.playersStats.seasonId, seasonId)
       )

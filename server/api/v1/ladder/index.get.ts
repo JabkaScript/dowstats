@@ -1,4 +1,3 @@
-// @ts-check
 import { desc, asc, sql, and, eq, inArray, gte } from 'drizzle-orm'
 import type { LadderQuery, WhereCondition, SoloRow, TeamRow } from '~~/server/interfaces/ladder'
 
