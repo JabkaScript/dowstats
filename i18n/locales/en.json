@@ -68,6 +68,7 @@
     "match3v3": "3v3",
     "match4v4": "4v4",
     "avgMmrAllies": "Avg. MMR (allies)",
-    "avgMmrOpponents": "Avg. MMR (opponents)"
+    "avgMmrOpponents": "Avg. MMR (opponents)",
+    "refresh": "Refresh"
   }
 }

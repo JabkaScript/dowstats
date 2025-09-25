@@ -3,7 +3,7 @@ import type { MatchHistoryItem, MatchHistoryMember, PlayerProfile } from '~/type
 
 interface Props {
   matches?: MatchHistoryItem[]
-  profileId: number
+  pid: string
   profiles?: PlayerProfile[]
 }
 
@@ -86,7 +86,7 @@ const matchTypeLabel = (id?: number) => {
 }
 
 const getSelfMember = (m: MatchHistoryItem) =>
-  m.matchhistorymember?.find((mm: MatchHistoryMember) => mm.profile_id === props.profileId)
+  m.matchhistorymember?.find((mm: MatchHistoryMember) => mm.profile_id.toString() === props.pid)
 
 const getTeams = (m: MatchHistoryItem) => {
   const self = getSelfMember(m)

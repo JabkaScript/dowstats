@@ -64,7 +64,7 @@ export default defineEventHandler(async (event) => {
       playerId: tables.players.id,
       sid: tables.players.sid,
       name: tables.players.name,
-      avatarUrl: tables.players.avatarUrl,
+      avatarUrl: tables.players.avatarUrlBig,
       serverId: tables.players.serverId,
       mmr: tables.playersStats.mmr,
       overallMmr: tables.playersStats.overallMmr,
@@ -79,7 +79,7 @@ export default defineEventHandler(async (event) => {
     .leftJoin(tables.players, eq(tables.players.id, tables.playersStats.playerId))
     .where(
       and(
-        eq(tables.players.id, playerId),
+        or(eq(tables.players.id, playerId), eq(tables.players.sid, playerId)),
         eq(tables.playersStats.modId, modId),
         eq(tables.playersStats.seasonId, seasonId)
       )

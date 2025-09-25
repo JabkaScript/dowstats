@@ -388,7 +388,7 @@ export const players = mysqlTable(
     avatarUrl: text('avatar_url'),
     avatarUrlBig: text('avatar_url_big').notNull(),
     time: int().default(0),
-    sid: bigint({ mode: 'bigint' }),
+    sid: bigint({ mode: 'number' }),
     apm: float().notNull(),
     apmGameCounter: int('apm_game_counter').default(0).notNull(),
     p1IsCalibrate: int('p1_is_calibrate').default(0).notNull(),
