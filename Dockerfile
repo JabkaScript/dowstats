@@ -1,49 +1,33 @@
-# Multi-stage build for Nuxt application
-FROM node:20-alpine AS base
+# syntax=docker/dockerfile:1
 
-# Install dependencies only when needed
-FROM base AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+# Build stage
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# Install system deps needed by Nuxt/Nitro on Alpine
 RUN apk add --no-cache libc6-compat
-WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-COPY package*.json ./
-RUN npm ci --only=production && npm cache clean --force
+# Install dependencies (use lockfile if available)
+COPY package.json package-lock.json* ./
+RUN set -eux; \
+    if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
-# Rebuild the source code only when needed
-FROM base AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+# Copy source and build for production (SSR)
 COPY . .
-
-# Set environment variables for build
-ENV NODE_ENV=production
-ENV NITRO_PRESET=node-server
-
-# Build the application
 RUN npm run build
 
-# Production image, copy all the files and run nuxt
-FROM base AS runner
+# Runtime stage
+FROM node:20-alpine AS runner
 WORKDIR /app
-
 ENV NODE_ENV=production
-ENV NITRO_HOST=0.0.0.0
-ENV NITRO_PORT=3000
+ENV HOST=0.0.0.0
+ENV PORT=3000
 
-# Create a non-root user
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nuxtjs
+# Copy the Nitro output only (self-contained server)
+COPY --from=builder /app/.output ./.output
 
-# Copy the built application
-COPY --from=builder --chown=nuxtjs:nodejs /app/.output /app/.output
+# Run as non-root for security
+USER node
 
-# Switch to non-root user
-USER nuxtjs
-
-# Expose the port
 EXPOSE 3000
-
-# Start the application
 CMD ["node", ".output/server/index.mjs"]
