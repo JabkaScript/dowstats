@@ -1,7 +1,6 @@
-version: '3.8'
+version: "3.8"
 
 services:
-
   # Nuxt Application
   app:
     build:
@@ -18,17 +17,8 @@ services:
       - NUXT_DB_USER=${NUXT_DB_USER:-dowstats_user}
       - NUXT_DB_PASSWORD=${NUXT_DB_PASSWORD:-password123}
       - NUXT_DB_NAME=${NUXT_DB_NAME:-dowstats}
-    depends_on:
-      db:
-        condition: service_healthy
     networks:
       - dowstats-network
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
-      timeout: 10s
-      retries: 3
-      interval: 30s
-      start_period: 40s
 
   # Optional: Nginx reverse proxy
   nginx:
