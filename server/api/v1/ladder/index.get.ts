@@ -81,7 +81,7 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event) as Partial<LadderQuery>
 
   // Parse and validate
-  const modId = parseModId(query)
+  const modId = await parseModId(query, db)
   const mmrType = parseMmrType(query)
   const sortDir = parseSort(query)
   const search = (query.search || '').toString().trim().toLowerCase()

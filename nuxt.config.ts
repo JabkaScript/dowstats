@@ -12,13 +12,11 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
   ],
   runtimeConfig: {
-    public: {
-      dbHost: process.env.NUXT_DB_HOST,
-      dbPort: process.env.NUXT_DB_PORT,
-      dbUser: process.env.NUXT_DB_USER,
-      dbPassword: process.env.NUXT_DB_PASSWORD,
-      dbName: process.env.NUXT_DB_NAME,
-    },
+    dbHost: process.env.NUXT_DB_HOST,
+    dbPort: process.env.NUXT_DB_PORT,
+    dbUser: process.env.NUXT_DB_USER,
+    dbPassword: process.env.NUXT_DB_PASSWORD,
+    dbName: process.env.NUXT_DB_NAME,
   },
 
   css: ['~/assets/css/main.css'],

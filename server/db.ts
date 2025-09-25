@@ -4,11 +4,11 @@ import * as schema from './database/schema'
 
 const config = useRuntimeConfig()
 const pool = mysql.createPool({
-  host: config.public.dbHost,
-  user: config.public.dbUser,
-  password: config.public.dbPassword,
-  database: config.public.dbName,
-  port: Number(config.public.dbPort),
+  host: config.dbHost,
+  user: config.dbUser,
+  password: config.dbPassword,
+  database: config.dbName,
+  port: Number(config.dbPort),
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
