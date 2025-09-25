@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+
+  # Nuxt Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dowstats-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - NUXT_DB_HOST=db
+      - NUXT_DB_PORT=3306
+      - NUXT_DB_USER=${NUXT_DB_USER:-dowstats_user}
+      - NUXT_DB_PASSWORD=${NUXT_DB_PASSWORD:-password123}
+      - NUXT_DB_NAME=${NUXT_DB_NAME:-dowstats}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - dowstats-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      timeout: 10s
+      retries: 3
+      interval: 30s
+      start_period: 40s
+
+  # Optional: Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: dowstats-nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_PORT:-80}:80"
+      - "${NGINX_SSL_PORT:-443}:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - app
+    networks:
+      - dowstats-network
+    profiles:
+      - with-nginx
+
+volumes:
+  db_data:
+    driver: local
+
+networks:
+  dowstats-network:
+    driver: bridge
