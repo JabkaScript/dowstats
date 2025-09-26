@@ -328,6 +328,8 @@ export default defineEventHandler(async (event) => {
       w2: tables.games.w2,
       w3: tables.games.w3,
       w4: tables.games.w4,
+      isAuto: tables.games.isAuto,
+      relicGameId: tables.games.relicGameId,
     })
     .from(tables.games)
     .where(and(...conditions))
