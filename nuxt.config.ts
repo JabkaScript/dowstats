@@ -42,7 +42,11 @@ export default defineNuxtConfig({
     },
     openAPI: {
       production: 'prerender',
-      route: '/docs',
+      ui: {
+        swagger: {
+          route: '/api',
+        },
+      },
     },
   },
 })
