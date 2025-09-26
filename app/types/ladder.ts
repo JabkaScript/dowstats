@@ -188,3 +188,29 @@ export interface PlayerStatsResponse {
   statGroups: StatGroup[]
   leaderboardStats: LeaderboardStat[]
 }
+
+// DowStats API Response Interfaces
+export interface DowStatsPlayerItem {
+  playerId: number
+  sid: number | null
+  name: string | null
+  avatarUrl: string
+  serverId: number
+  mmr: number | null
+  overallMmr: number | null
+  maxMmr: number | null
+  maxOverallMmr: number | null
+  totalGamesSolo: number
+  totalWinsSolo: number
+  totalGamesTeam: number
+  totalWinsTeam: number
+}
+
+export interface DowStatsResponse {
+  item: DowStatsPlayerItem | null
+  meta: {
+    playerId: number
+    modId: number
+    seasonId: number
+  }
+}

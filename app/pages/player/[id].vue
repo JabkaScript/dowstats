@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { PlayerStatsResponse } from '~/types/ladder'
+import type { PlayerStatsResponse, DowStatsResponse } from '~/types/ladder'
 
 definePageMeta({
   name: 'player',
@@ -24,9 +24,11 @@ const profileNames = computed(() => {
   return JSON.stringify([`/steam/${sid}`])
 })
 
-const { data: dowstatsData, refresh: refreshDowStatsData } = await useFetch(
+const { data: dowstatsData, refresh: refreshDowStatsData } = await useFetch<DowStatsResponse>(
   `/api/v1/players/${sid}`,
-  { server: true }
+  {
+    server: true,
+  }
 )
 const { data: relicData, refresh: refreshRelicData } = await useFetch<PlayerStatsResponse>(
   `/api/proxy/relic/community/leaderboard/getpersonalstat?title=dow1-de&profile_names=${profileNames.value}`,
@@ -60,7 +62,7 @@ useHead({
       <KeepAlive>
         <PlayerRelic v-if="statsType === 'relic'" :pid :relic-data />
       </KeepAlive>
-      <PlayerDowstats v-if="statsType === 'dowstats'" :pid />
+      <PlayerDowstats v-if="statsType === 'dowstats'" :pid :dowstats-data />
     </UPage>
   </UContainer>
 </template>

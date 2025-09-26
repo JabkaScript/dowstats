@@ -534,9 +534,6 @@ export const playersStats = mysqlTable(
     overallMmr: int('overall_mmr').default(1500).notNull(),
     maxMmr: int('max_mmr').default(1500).notNull(),
     maxOverallMmr: int('max_overall_mmr').notNull(),
-    autoMmr: int('auto_mmr').default(1500).notNull(),
-    soloAutoMmr: int('solo_auto_mmr').default(1500).notNull(),
-    teamAutoMmr: int('team_auto_mmr').default(1500).notNull(),
     customGamesMmr: int('custom_games_mmr').default(1500).notNull(),
   },
   (table) => [

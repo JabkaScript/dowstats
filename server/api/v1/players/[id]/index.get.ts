@@ -4,8 +4,6 @@ import {
   parseModId,
   parseProvidedSeason,
   resolveSeasonId,
-  getTotalGamesExpr,
-  getTotalWinsExpr,
   getPlayerId,
 } from '~~/server/utils/params-validators'
 
@@ -54,11 +52,6 @@ export default defineEventHandler(async (event) => {
   const providedSeason = parseProvidedSeason(query)
   const seasonId = await resolveSeasonId(db, providedSeason)
 
-  const soloGamesExpr = getTotalGamesExpr('solo')
-  const soloWinsExpr = getTotalWinsExpr('solo')
-  const teamGamesExpr = getTotalGamesExpr('team')
-  const teamWinsExpr = getTotalWinsExpr('team')
-
   const rows = await db
     .select({
       playerId: tables.players.id,
@@ -70,10 +63,6 @@ export default defineEventHandler(async (event) => {
       overallMmr: tables.playersStats.overallMmr,
       maxMmr: tables.playersStats.maxMmr,
       maxOverallMmr: tables.playersStats.maxOverallMmr,
-      totalGamesSolo: soloGamesExpr,
-      totalWinsSolo: soloWinsExpr,
-      totalGamesTeam: teamGamesExpr,
-      totalWinsTeam: teamWinsExpr,
     })
     .from(tables.playersStats)
     .leftJoin(tables.players, eq(tables.players.id, tables.playersStats.playerId))
