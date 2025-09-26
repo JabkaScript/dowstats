@@ -42,6 +42,11 @@ export default defineNuxtConfig({
     },
     openAPI: {
       production: 'prerender',
+      route: '/open-api.json',
+      meta: {
+        title: 'Dow Stats API',
+        version: '1.0',
+      },
       ui: {
         swagger: {
           route: '/api',
