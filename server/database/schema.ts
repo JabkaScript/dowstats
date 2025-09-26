@@ -103,7 +103,7 @@ export const games = mysqlTable(
     seasonId: int('season_id').default(1).notNull(),
     rankColumn: int('rank_column'),
     isAuto: tinyint('is_auto').default(0).notNull(),
-    relicGameId: int('relic_game_id'),
+    relic_game_id: bigint({ mode: 'number', unsigned: true }),
   },
   (table) => [
     index('cTime').on(table.cTime),
