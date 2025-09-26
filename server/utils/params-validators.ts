@@ -1,4 +1,4 @@
-import { sql, eq, desc, like } from 'drizzle-orm'
+import { sql, eq, desc, like, or } from 'drizzle-orm'
 import { createError } from 'h3'
 import type { LadderQuery, WhereCondition } from '~~/server/interfaces/ladder'
 import { tables, useDrizzle } from './drizzle'
@@ -26,7 +26,10 @@ export async function parseModId(
       .select({ id: tables.mods.id })
       .from(tables.mods)
       .where(
-        or(eq(tables.mods.id, Number(providedId)), like(tables.mods.technicalName, `${providedId}`))
+        or(
+          eq(tables.mods.id, providedId as unknown as number),
+          like(tables.mods.technicalName, `${providedId}`)
+        )
       )
       .limit(1)
     if (mod[0]?.id) {
