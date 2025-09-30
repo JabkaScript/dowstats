@@ -56,27 +56,6 @@ export interface ServersResponse {
   items: ServerItem[]
 }
 
-export interface LeaderboardStat {
-  statgroup_id: number
-  leaderboard_id: number
-  wins: number
-  losses: number
-  streak: number
-  disputes: number
-  drops: number
-  rank: number
-  ranktotal: number
-  ranklevel: number
-  rating: number
-  regionrank: number
-  regionranktotal: number
-  lastmatchdate: number
-  highestrank: number
-  highestranklevel: number
-  // present in live API, used in UI
-  highestrating: number
-}
-
 export interface RelicApiResult {
   code: number
   message: string
@@ -189,6 +168,13 @@ export interface PlayerStatsResponse {
   leaderboardStats: LeaderboardStat[]
 }
 
+export interface PlayerStatsWithRankResponse {
+  result: RelicApiResult
+  statGroups: StatGroup[]
+  leaderboardStats: LeaderboardStat[]
+  rankTotal: number
+}
+
 // DowStats API Response Interfaces
 export interface DowStatsPlayerItem {
   playerId: number
@@ -196,14 +182,90 @@ export interface DowStatsPlayerItem {
   name: string | null
   avatarUrl: string
   serverId: number
-  mmr: number | null
-  overallMmr: number | null
-  maxMmr: number | null
-  maxOverallMmr: number | null
-  totalGamesSolo: number
-  totalWinsSolo: number
-  totalGamesTeam: number
-  totalWinsTeam: number
+  stats: {
+    id: number
+    playerId: number
+    seasonId: number
+    modId: number
+    modVersion: string | null
+    '1X11': number
+    '1X11W': number
+    '1X12': number
+    '1X12W': number
+    '1X13': number
+    '1X13W': number
+    '1X14': number
+    '1X14W': number
+    '1X15': number
+    '1X15W': number
+    '1X16': number
+    '1X16W': number
+    '1X17': number
+    '1X17W': number
+    '1X18': number
+    '1X18W': number
+    '1X19': number
+    '1X19W': number
+    '2X21': number
+    '2X21W': number
+    '2X22': number
+    '2X22W': number
+    '2X23': number | null
+    '2X23W': number
+    '2X24': number | null
+    '2X24W': number
+    '2X25': number
+    '2X25W': number
+    '2X26': number
+    '2X26W': number
+    '2X27': number
+    '2X27W': number
+    '2X28': number
+    '2X28W': number
+    '2X29': number
+    '2X29W': number
+    '3X31': number
+    '3X31W': number
+    '3X32': number
+    '3X32W': number
+    '3X33': number
+    '3X33W': number
+    '3X34': number
+    '3X34W': number
+    '3X35': number
+    '3X35W': number
+    '3X36': number
+    '3X36W': number
+    '3X37': number
+    '3X37W': number
+    '3X38': number
+    '3X38W': number
+    '3X39': number
+    '3X39W': number
+    '4X41': number
+    '4X41W': number
+    '4X42': number
+    '4X42W': number
+    '4X43': number
+    '4X43W': number
+    '4X44': number
+    '4X44W': number
+    '4X45': number
+    '4X45W': number
+    '4X46': number
+    '4X46W': number
+    '4X47': number
+    '4X47W': number
+    '4X48': number
+    '4X48W': number
+    '4X49': number
+    '4X49W': number
+    mmr: number
+    overallMmr: number
+    maxMmr: number
+    maxOverallMmr: number
+    customGamesMmr: number
+  }
 }
 
 export interface DowStatsResponse {
@@ -213,4 +275,22 @@ export interface DowStatsResponse {
     modId: number
     seasonId: number
   }
+}
+
+export interface LeaderboardMap {
+  matchtype_id: number
+  statgroup_type: number
+  race_id: number
+}
+
+export interface Leaderboard {
+  id: number
+  name: string
+  isranked: number
+  leaderboardmap: LeaderboardMap[]
+}
+
+export interface LeaderboardsResponse {
+  result: RelicApiResult
+  leaderboards: Leaderboard[]
 }

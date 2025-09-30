@@ -33,9 +33,6 @@ export default defineNuxtConfig({
     strategy: 'prefix_except_default',
   },
   ssr: true,
-  routeRules: {
-    '/': { isr: true },
-  },
   nitro: {
     experimental: {
       openAPI: true,

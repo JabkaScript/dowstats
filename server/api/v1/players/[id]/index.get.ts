@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm'
+import { and, eq, or } from 'drizzle-orm'
 import { tables, useDrizzle } from '~~/server/utils/drizzle'
 import {
   parseModId,
@@ -10,7 +10,7 @@ import {
 defineRouteMeta({
   openAPI: {
     description:
-      'Player statistics for a given mod and optional season. If season is not provided, the active season is used, otherwise the latest available. Returns basic profile, MMR metrics, and total games/wins for solo and team.',
+      'Player statistics for a given mod and optional season. Returns full playersStats row including race breakdown (e.g. 1x11W) alongside basic profile info. If season is not provided, the active season is used, otherwise the latest available.',
     parameters: [
       {
         in: 'path',
@@ -23,7 +23,7 @@ defineRouteMeta({
         in: 'query',
         name: 'mod',
         description: 'Mod ID or Mod tech_name to fetch stats for. If not provided — dxp2 is used.',
-        schema: { type: 'integer', default: 'dxp2' },
+        schema: { type: 'string', default: 'dxp2' },
       },
       {
         in: 'query',
@@ -59,10 +59,7 @@ export default defineEventHandler(async (event) => {
       name: tables.players.name,
       avatarUrl: tables.players.avatarUrlBig,
       serverId: tables.players.serverId,
-      mmr: tables.playersStats.mmr,
-      overallMmr: tables.playersStats.overallMmr,
-      maxMmr: tables.playersStats.maxMmr,
-      maxOverallMmr: tables.playersStats.maxOverallMmr,
+      stats: tables.playersStats,
     })
     .from(tables.playersStats)
     .leftJoin(tables.players, eq(tables.players.id, tables.playersStats.playerId))
