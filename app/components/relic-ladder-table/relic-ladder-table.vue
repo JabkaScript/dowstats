@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
-import type { LeaderboardStat, PlayerStatsResponse } from '~/types/ladder'
+import type { LeaderboardStat, PlayerStatsResponse } from '~~/shared/types/relic-api'
 import { getCountryFlag } from '~/utils/country-flags'
 
 const { leaderboardId, name, isSingle } = defineProps<{

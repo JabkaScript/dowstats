@@ -1,11 +1,12 @@
 import type { SQL } from 'drizzle-orm'
+import type { MmrType } from '~~/shared/types/relic-api'
 
 export type WhereCondition = SQL
 
 export interface LadderQuery {
   mod?: string
   season?: string
-  mmrType?: 'solo' | 'team'
+  mmrType?: MmrType
   search?: string
   sort?: 'asc' | 'desc'
   server?: string

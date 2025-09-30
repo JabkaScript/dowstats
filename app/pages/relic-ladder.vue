@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { LeaderboardsResponse } from '~/types/ladder'
+import type { LeaderboardsResponse } from '~~/shared/types/relic-api'
 
 interface Leaderboard {
   id: number
