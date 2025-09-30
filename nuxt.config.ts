@@ -33,6 +33,12 @@ export default defineNuxtConfig({
     strategy: 'prefix_except_default',
   },
   ssr: true,
+  app: {
+    pageTransition: {
+      name: 'page',
+      mode: 'out-in',
+    },
+  },
   nitro: {
     experimental: {
       openAPI: true,

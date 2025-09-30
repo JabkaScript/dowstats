@@ -47,7 +47,7 @@ const leaderboards = computed<Leaderboard[]>(() => {
         </div>
       </UPageHeader>
       <div
-        class="grid lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1 gap-4 justify-center py-2"
+        class="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-4 justify-center py-2"
         :class="{ '!grid-cols-1': relicRace !== 'all' }"
       >
         <RelicLadderTable
