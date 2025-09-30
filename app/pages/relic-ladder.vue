@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AvailableLeaderboardsResponse } from '~/types/ladder'
+import type { LeaderboardsResponse } from '~/types/ladder'
 
 interface Leaderboard {
   id: number
@@ -15,7 +15,7 @@ definePageMeta({
   name: 'relic-ladder',
 })
 
-const { data } = await useFetch<AvailableLeaderboardsResponse>(
+const { data } = await useFetch<LeaderboardsResponse>(
   '/api/proxy/relic/community/leaderboard/getavailableleaderboards?title=dow1-de',
   { server: true }
 )

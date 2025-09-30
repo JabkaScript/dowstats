@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
-import type { Leaderboard2Response, LeaderboardStat } from '~/types/ladder'
+import type { LeaderboardStat, PlayerStatsResponse } from '~/types/ladder'
+import { getCountryFlag } from '~/utils/country-flags'
 
 const { leaderboardId, name, isSingle } = defineProps<{
   leaderboardId: string
@@ -57,23 +58,34 @@ const columns = computed<TableColumn<LeaderboardStat>[]>(() => {
 
 const expanded = ref({})
 const raceName = computed(() => name.replace(/\d+v\d+_/g, ''))
-const { data, pending } = await useFetch<Leaderboard2Response>(
+const { data, pending } = await useFetch<PlayerStatsResponse>(
   `/api/proxy/relic/community/leaderboard/getleaderboard2?title=dow1-de&leaderboard_id=${leaderboardId}&sortBy=1&start=1&count=50`,
   { cache: 'default' }
 )
 const leaderboardStats = computed(() => data.value?.leaderboardStats)
-const statGroups = computed(() => data.value?.statGroups)
+const statGroups = computed(() => {
+  const groups = data.value?.statGroups
+  if (!groups) {
+    return new Map()
+  }
+  return new Map(groups.map((group) => [group.id, group]))
+})
 
 function getNickname(statGroupId: unknown) {
-  const statGroup = statGroups.value?.find((i) => i.id === statGroupId)
+  const statGroup = statGroups.value?.get(statGroupId as string)
 
   return statGroup?.members[0]?.alias
 }
 function steamId(statGroupId: unknown) {
-  const statGroup = statGroups.value?.find((i) => i.id === statGroupId)
+  const statGroup = statGroups.value?.get(statGroupId as string)
 
   const name = statGroup?.members[0]?.name
   return name ? name.split('/')[2] : undefined
+}
+
+function getCountryCode(statGroupId: unknown) {
+  const statGroup = statGroups.value?.get(statGroupId as string)
+  return statGroup?.members[0]?.country
 }
 </script>
 <template>
@@ -128,12 +140,25 @@ function steamId(statGroupId: unknown) {
           <div class="text-right">{{ t('ladder.highestRating') }}</div>
         </template>
         <template #name-cell="{ row }">
-          <NuxtLink
-            class="hover:underline"
-            :to="localePath({ name: 'player', params: { id: steamId(row.original.statgroup_id) } })"
-          >
-            {{ getNickname(row.original.statgroup_id) }}
-          </NuxtLink>
+          <div class="flex items-center gap-2">
+            <UTooltip :text="getCountryCode(row.original.statgroup_id)">
+              <span
+                v-if="getCountryFlag(getCountryCode(row.original.statgroup_id))"
+                class="text-lg"
+              >
+                {{ getCountryFlag(getCountryCode(row.original.statgroup_id)) }}
+              </span>
+            </UTooltip>
+
+            <NuxtLink
+              class="hover:underline"
+              :to="
+                localePath({ name: 'player', params: { id: steamId(row.original.statgroup_id) } })
+              "
+            >
+              {{ getNickname(row.original.statgroup_id) }}
+            </NuxtLink>
+          </div>
         </template>
         <template #rating-cell="{ row }">
           <div class="tabular-nums text-right w-full">{{ row.original.rating }}</div>
