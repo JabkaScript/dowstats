@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { PlayerStatsResponse, DowStatsResponse } from '~/types/ladder'
+import type { DowStatsResponse } from '~/types/ladder'
 
 definePageMeta({
   name: 'player',

@@ -144,10 +144,9 @@ function getCountryCode(statGroupId: unknown) {
             <UTooltip :text="getCountryCode(row.original.statgroup_id)">
               <span
                 v-if="getCountryFlag(getCountryCode(row.original.statgroup_id))"
-                class="text-lg"
-              >
-                {{ getCountryFlag(getCountryCode(row.original.statgroup_id)) }}
-              </span>
+                class="!w-4 h-3 opacity-70"
+                :class="`fi fi-${getCountryCode(row.original.statgroup_id)}`"
+              />
             </UTooltip>
 
             <NuxtLink

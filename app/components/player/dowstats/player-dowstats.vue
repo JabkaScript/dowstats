@@ -2,10 +2,8 @@
 import type { DowStatsResponse } from '~/types/ladder'
 
 interface Props {
-  dowstatsData: DowStatsResponse | null
+  dowstatsData?: DowStatsResponse
 }
 const { dowstatsData } = defineProps<Props>()
 </script>
-<template>
-  <div></div>
-</template>
+<template></template>

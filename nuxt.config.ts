@@ -19,7 +19,7 @@ export default defineNuxtConfig({
     dbName: process.env.NUXT_DB_NAME,
   },
 
-  css: ['~/assets/css/main.css'],
+  css: ['~/assets/css/main.css', '~~/node_modules/flag-icons/css/flag-icons.min.css'],
   colorMode: { preference: 'system', fallback: 'dark', classSuffix: '' },
   i18n: {
     trailingSlash: true,
