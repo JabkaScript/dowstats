@@ -10,6 +10,7 @@
     "@vueuse/nuxt": "13.9.0",
     "drizzle-orm": "^0.44.5",
     "eslint": "^9.0.0",
+    "flag-icons": "7.5.0",
     "mysql2": "^3.14.4",
     "nuxt": "^4.0.3",
     "pinia": "^3.0.3",
@@ -33,6 +34,7 @@
   },
   "type": "module",
   "devDependencies": {
+    "@iconify-json/lucide": "1.2.68",
     "@types/swagger-ui-dist": "^3.30.6",
     "@vue/test-utils": "^2.4.6",
     "drizzle-kit": "^0.31.4",

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
-import type { LeaderboardStat, PlayerStatsResponse } from '~/types/ladder'
+import type { LeaderboardStat, PlayerStatsResponse } from '~~/shared/types/relic-api'
 import { getCountryFlag } from '~/utils/country-flags'
 
 const { leaderboardId, name, isSingle } = defineProps<{
@@ -144,10 +144,9 @@ function getCountryCode(statGroupId: unknown) {
             <UTooltip :text="getCountryCode(row.original.statgroup_id)">
               <span
                 v-if="getCountryFlag(getCountryCode(row.original.statgroup_id))"
-                class="text-lg"
-              >
-                {{ getCountryFlag(getCountryCode(row.original.statgroup_id)) }}
-              </span>
+                class="!w-4 h-3 opacity-70"
+                :class="`fi fi-${getCountryCode(row.original.statgroup_id)}`"
+              />
             </UTooltip>
 
             <NuxtLink
