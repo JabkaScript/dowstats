@@ -6,4 +6,6 @@ interface Props {
 }
 const { dowstatsData } = defineProps<Props>()
 </script>
-<template></template>
+<template>
+  <UTable></UTable>
+</template>

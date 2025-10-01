@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { MatchHistoryResponse, PlayerStatsResponse } from '~/types/ladder'
+import type { MatchHistoryResponse } from '~/types/ladder'
 import { groupLeaderboardStatsByMatchType } from '~/utils/stats-grouping'
 import PlayerStatsTabs from './player-relic-stats-tabs.vue'
 import PlayerStatsTable from './player-relic-stats-table.vue'

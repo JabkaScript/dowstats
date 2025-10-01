@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { MatchHistoryItem, MatchHistoryMember, PlayerProfile } from '~/types/ladder'
+import type { MatchHistoryItem, MatchHistoryMember } from '~/types/ladder'
 
 interface Props {
   matches?: MatchHistoryItem[]
