@@ -16,7 +16,8 @@ const items = computed(() => {
     {
       label: 'Dow Stats',
       value: 'dowstats',
-      disabled: true
+      disabled: true,
+      icon: 'lucide:construction',
     },
   ]
 })
