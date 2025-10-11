@@ -65,7 +65,8 @@ export default defineEventHandler(async (event) => {
     .leftJoin(tables.players, eq(tables.players.id, tables.playersStats.playerId))
     .where(
       and(
-        or(eq(tables.players.id, playerId), eq(tables.players.sid, playerId)),
+        // @ts-expect-error idParam is always number so it's safe to pass
+        or(eq(tables.players.id, playerId), eq(tables.players.sid, playerId), eq(tables.players.serverId, idParam)),
         eq(tables.playersStats.modId, modId),
         eq(tables.playersStats.seasonId, seasonId)
       )
@@ -73,6 +74,7 @@ export default defineEventHandler(async (event) => {
     .limit(1)
 
   const row = rows[0]
+
   if (!row) {
     throw createError({
       statusCode: 400,
