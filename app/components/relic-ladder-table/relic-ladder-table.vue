@@ -2,6 +2,7 @@
 import type { TableColumn } from '@nuxt/ui'
 import type { LeaderboardStat, PlayerStatsResponse } from '~~/shared/types/relic-api'
 import { getCountryFlag } from '~/utils/country-flags'
+import { width } from 'happy-dom/lib/PropertySymbol.js';
 
 const { leaderboardId, name, isSingle } = defineProps<{
   leaderboardId: string
@@ -17,6 +18,11 @@ const columns = computed<TableColumn<LeaderboardStat>[]>(() => {
       id: 'rank',
       accessorKey: 'rank',
       header: t('ladder.rank'),
+      meta: {
+        class: {
+          th: 'w-10'
+        }
+      }
     },
     {
       id: 'name',
@@ -27,6 +33,11 @@ const columns = computed<TableColumn<LeaderboardStat>[]>(() => {
       id: 'rating',
       accessorKey: 'rating',
       header: t('ladder.rating'),
+      meta: {
+        class: {
+          th: 'w-16'
+        }
+      }
     },
   ]
 
@@ -35,6 +46,11 @@ const columns = computed<TableColumn<LeaderboardStat>[]>(() => {
       id: 'expand',
       accessorKey: 'expand',
       header: '',
+      meta: {
+        class: {
+          th: 'w-8'
+        }
+      }
     })
   } else {
     base.splice(3, 0, {
@@ -99,27 +115,22 @@ function getCountryCode(statGroupId: unknown) {
     </div>
 
     <ClientOnly v-else>
-      <UTable
-        v-model:expanded="expanded"
-        :data="leaderboardStats"
-        :columns
-        :ui="{ td: 'p-1', th: 'p-1', tr: 'even:bg-neutral-100 even:dark:bg-neutral-800' }"
-      >
+      <UTable v-model:expanded="expanded" :data="leaderboardStats" :columns
+        :ui="{ td: 'p-1', base: 'table-fixed w-full min-w-0 overflow-hidden', th: 'p-1', tr: 'even:bg-neutral-100 even:dark:bg-neutral-800' }">
+
         <template #expand-cell="{ row }">
-          <UButton
-            color="neutral"
-            icon="lucide:chevron-down"
-            variant="ghost"
-            size="xs"
-            square
-            :ui="{
-              leadingIcon: [
-                'transition-transform',
-                row.getIsExpanded() ? 'duration-200 rotate-180' : '',
-              ],
-            }"
-            @click="row.toggleExpanded()"
-          />
+          <UButton color="neutral" icon="lucide:chevron-down" variant="ghost" size="xs" square :ui="{
+            leadingIcon: [
+              'transition-transform',
+              row.getIsExpanded() ? 'duration-200 rotate-180' : '',
+            ],
+          }" @click="row.toggleExpanded()" />
+        </template>
+        <template #rank-header>
+          <div class="text-right">{{ t('ladder.rank') }}</div>
+        </template>
+        <template #rank-cell="{ row }">
+          <div class="tabular-nums text-right whitespace-nowrap shrink-0">{{ row.original.rank }}</div>
         </template>
         <template #rating-header>
           <div class="text-right">{{ t('ladder.rating') }}</div>
@@ -140,46 +151,40 @@ function getCountryCode(statGroupId: unknown) {
           <div class="text-right">{{ t('ladder.highestRating') }}</div>
         </template>
         <template #name-cell="{ row }">
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 min-w-0 flex-1">
             <UTooltip :text="getCountryCode(row.original.statgroup_id)">
-              <span
-                v-if="getCountryFlag(getCountryCode(row.original.statgroup_id))"
-                class="!w-4 h-3 opacity-70"
-                :class="`fi fi-${getCountryCode(row.original.statgroup_id)}`"
-              />
+              <span v-if="getCountryFlag(getCountryCode(row.original.statgroup_id))"
+                class="!w-4 h-3 opacity-70 shrink-0" :class="`fi fi-${getCountryCode(row.original.statgroup_id)}`" />
             </UTooltip>
 
-            <NuxtLink
-              class="hover:underline"
-              :to="
-                localePath({ name: 'player', params: { id: steamId(row.original.statgroup_id) } })
-              "
-            >
+            <NuxtLink class="hover:underline truncate block min-w-0 max-w-[60vw] sm:max-w-none"
+              :title="getNickname(row.original.statgroup_id)"
+              :to="localePath({ name: 'player', params: { id: steamId(row.original.statgroup_id) } })">
               {{ getNickname(row.original.statgroup_id) }}
             </NuxtLink>
           </div>
         </template>
         <template #rating-cell="{ row }">
-          <div class="tabular-nums text-right w-full">{{ row.original.rating }}</div>
+          <div class="tabular-nums text-right whitespace-nowrap shrink-0">{{ row.original.rating }}</div>
         </template>
         <template #wins-cell="{ row }">
-          <div class="tabular-nums text-right w-full">{{ row.original.wins }}</div>
+          <div class="tabular-nums text-right whitespace-nowrap shrink-0">{{ row.original.wins }}</div>
         </template>
         <template #losses-cell="{ row }">
-          <div class="tabular-nums text-right w-full">{{ row.original.losses }}</div>
+          <div class="tabular-nums text-right whitespace-nowrap shrink-0">{{ row.original.losses }}</div>
         </template>
         <template #winrate-cell="{ row }">
-          <div class="tabular-nums text-right w-full">
+          <div class="tabular-nums text-right whitespace-nowrap shrink-0">
             {{
               ((row.original.wins / (row.original.wins + row.original.losses)) * 100).toFixed(2)
             }}%
           </div>
         </template>
         <template #currentStreak-cell="{ row }">
-          <div class="tabular-nums text-right w-full">{{ row.original.streak }}</div>
+          <div class="tabular-nums text-right whitespace-nowrap shrink-0">{{ row.original.streak }}</div>
         </template>
         <template #highestRating-cell="{ row }">
-          <div class="tabular-nums text-right w-full">{{ row.original.highestrating }}</div>
+          <div class="tabular-nums text-right whitespace-nowrap shrink-0">{{ row.original.highestrating }}</div>
         </template>
         <template #expanded="{ row }">
           <ul class="flex flex-col gap-0.5 p-1">
