@@ -116,7 +116,7 @@ function getCountryCode(statGroupId: unknown) {
 
     <ClientOnly v-else>
       <UTable v-model:expanded="expanded" :data="leaderboardStats" :columns
-        :ui="{ td: 'p-1', base: 'table-fixed w-full min-w-0 overflow-hidden', th: 'p-1', tr: 'even:bg-neutral-100 even:dark:bg-neutral-800' }">
+        :ui="{ td: 'p-1', base: !isSingle ? 'table-fixed w-full min-w-0 overflow-hidden': '', th: 'p-1', tr: 'even:bg-neutral-100 even:dark:bg-neutral-800' }">
 
         <template #expand-cell="{ row }">
           <UButton color="neutral" icon="lucide:chevron-down" variant="ghost" size="xs" square :ui="{
