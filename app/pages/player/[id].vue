@@ -16,8 +16,6 @@ const items = computed(() => {
     {
       label: 'Dow Stats',
       value: 'dowstats',
-      disabled: true,
-      icon: 'lucide:construction',
     },
   ]
 })
@@ -64,9 +62,7 @@ useHead({
       <KeepAlive>
         <PlayerRelic v-if="statsType === 'relic'" :pid :relic-data />
       </KeepAlive>
-      <DevOnly>
-        <PlayerDowstats v-if="statsType === 'dowstats'" :pid :dowstats-data />
-      </DevOnly>
+      <PlayerDowstats v-if="statsType === 'dowstats'" :pid :dowstats-data />
     </UPage>
   </UContainer>
 </template>
