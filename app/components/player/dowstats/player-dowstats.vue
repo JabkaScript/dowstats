@@ -3,8 +3,6 @@ import type { DowStatsResponse, DowStatsPlayerItem } from '~/types/ladder'
 import type { TableColumn } from '@nuxt/ui'
 import { watch } from 'vue'
 
-import type { SortingState } from '@tanstack/vue-table'
-
 interface Props {
   pid: string
   dowstatsData?: DowStatsResponse
@@ -135,30 +133,7 @@ const tabItems = computed<{ label: string; value: FormatKey }[]>(() => [
   { label: t('player.match4v4'), value: '4v4' },
 ])
 
-const mmrSummary = computed(() => {
-  const s = stats.value
-  if (!s) return null
-  return {
-    mmr: Number(s.mmr ?? 0),
-    overallMmr: Number(s.overallMmr ?? 0),
-    maxMmr: Number(s.maxMmr ?? 0),
-    maxOverallMmr: Number(s.maxOverallMmr ?? 0),
-    customGamesMmr: Number(s.customGamesMmr ?? 0),
-  }
-})
-
-// Sorting helpers for header slots
-type SortKey = 'games' | 'wins' | 'losses' | 'winrate'
-const getSortIcon = (id: SortKey) => {
-  const entry = sorting.value.find((s) => s.id === id)
-  if (!entry) return 'i-lucide-arrow-up-down'
-  return entry.desc ? 'i-lucide-arrow-down-wide-narrow' : 'i-lucide-arrow-up-narrow-wide'
-}
-const toggleSort = (id: SortKey) => {
-  const entry = sorting.value.find((s) => s.id === id)
-  const nextDesc = entry ? !entry.desc : false
-  sorting.value = [{ id, desc: nextDesc }]
-}
+// No header summary and no custom header sort controls to match Relic style
 
 const columns: TableColumn<RaceStats>[] = [
   { id: 'raceName', accessorKey: 'raceName', header: t('ladder.race') },
@@ -173,36 +148,8 @@ const hasData = computed(() => !!props.dowstatsData?.item?.stats)
 </script>
 
 <template>
-  <section aria-labelledby="dowstats-title" class="space-y-4">
+  <section class="space-y-4">
     <UCard>
-      <template #header>
-        <div class="flex items-center justify-between">
-          <h3 id="dowstats-title" class="text-lg font-semibold">DoW Stats</h3>
-          <div v-if="mmrSummary" class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
-            <div class="text-right">
-              <span class="opacity-70">MMR:</span>
-              <span class="tabular-nums">{{ mmrSummary.mmr }}</span>
-            </div>
-            <div class="text-right">
-              <span class="opacity-70">Overall:</span>
-              <span class="tabular-nums">{{ mmrSummary.overallMmr }}</span>
-            </div>
-            <div class="text-right">
-              <span class="opacity-70">Max:</span>
-              <span class="tabular-nums">{{ mmrSummary.maxMmr }}</span>
-            </div>
-            <div class="text-right">
-              <span class="opacity-70">Max Overall:</span>
-              <span class="tabular-nums">{{ mmrSummary.maxOverallMmr }}</span>
-            </div>
-            <div class="text-right">
-              <span class="opacity-70">Custom:</span>
-              <span class="tabular-nums">{{ mmrSummary.customGamesMmr }}</span>
-            </div>
-          </div>
-        </div>
-      </template>
-
       <div v-if="loading" class="space-y-3">
         <USkeleton class="h-6 w-1/3" />
         <USkeleton class="h-6 w-1/2" />
@@ -217,106 +164,50 @@ const hasData = computed(() => !!props.dowstatsData?.item?.stats)
         <UTabs v-model="activeTab" :items="tabItems" class="w-full" aria-label="Match type">
           <template #content="{ item }">
             <div class="space-y-3">
-              <UTable
-                v-model:sorting="sorting"
-                :data="byFormat[item.value as FormatKey].races"
-                :columns
-              >
-                <template #raceName-cell="{ row }">
-                  <div class="flex items-center gap-2">
-                    <span class="font-medium">{{ row.original.raceName }}</span>
-                  </div>
-                </template>
-                <template #games-header>
-                  <UButton
-                    color="neutral"
-                    variant="ghost"
-                    :label="$t('ladder.games')"
-                    :icon="getSortIcon('games')"
-                    class="w-full flex items-end justify-end"
-                    @click="toggleSort('games')"
-                  />
-                </template>
-                <template #wins-header>
-                  <UButton
-                    color="neutral"
-                    variant="ghost"
-                    :label="$t('ladder.wins')"
-                    :icon="getSortIcon('wins')"
-                    class="w-full flex items-end justify-end"
-                    @click="toggleSort('wins')"
-                  />
-                </template>
-                <template #losses-header>
-                  <UButton
-                    color="neutral"
-                    variant="ghost"
-                    :label="$t('ladder.losses')"
-                    :icon="getSortIcon('losses')"
-                    class="w-full flex items-end justify-end"
-                    @click="toggleSort('losses')"
-                  />
-                </template>
-                <template #winrate-header>
-                  <UButton
-                    color="neutral"
-                    variant="ghost"
-                    :label="$t('ladder.winrate')"
-                    :icon="getSortIcon('winrate')"
-                    class="w-full flex items-end justify-end"
-                    @click="toggleSort('winrate')"
-                  />
-                </template>
-                <template #games-cell="{ row }">
-                  <div class="tabular-nums text-right w-full">{{ row.original.games }}</div>
-                </template>
-                <template #wins-cell="{ row }">
-                  <div class="tabular-nums text-right w-full">{{ row.original.wins }}</div>
-                </template>
-                <template #losses-cell="{ row }">
-                  <div class="tabular-nums text-right w-full">{{ row.original.losses }}</div>
-                </template>
-                <template #winrate-cell="{ row }">
-                  <div class="flex items-center gap-2 w-full">
-                    <div class="flex-1 h-1.5 bg-neutral-200 rounded">
-                      <div
-                        :class="['h-1.5 rounded', winrateColor(row.original.winrate)]"
-                        :style="{ width: (row.original.winrate ?? 0) + '%' }"
-                      />
+              <ClientOnly>
+                <UTable
+                  :data="byFormat[item.value as FormatKey].races"
+                  :columns
+                  :ui="{
+                    td: 'p-1',
+                    th: 'p-1',
+                    tr: 'even:bg-neutral-100 even:dark:bg-neutral-800',
+                    base: 'table-fixed w-full min-w-0 overflow-hidden',
+                  }"
+                >
+                  <template #raceName-cell="{ row }">
+                    <div class="flex items-center gap-2">
+                      <span class="font-medium">{{ row.original.raceName }}</span>
                     </div>
-                    <div class="tabular-nums text-right w-12">
-                      {{ row.original.winrate ?? '—' }}
+                  </template>
+                  <template #games-header>
+                    <div class="text-right">{{ $t('ladder.games') }}</div>
+                  </template>
+                  <template #wins-header>
+                    <div class="text-right">{{ $t('ladder.wins') }}</div>
+                  </template>
+                  <template #losses-header>
+                    <div class="text-right">{{ $t('ladder.losses') }}</div>
+                  </template>
+                  <template #winrate-header>
+                    <div class="text-right">{{ $t('ladder.winrate') }}</div>
+                  </template>
+                  <template #games-cell="{ row }">
+                    <div class="tabular-nums text-right w-full">{{ row.original.games }}</div>
+                  </template>
+                  <template #wins-cell="{ row }">
+                    <div class="tabular-nums text-right w-full">{{ row.original.wins }}</div>
+                  </template>
+                  <template #losses-cell="{ row }">
+                    <div class="tabular-nums text-right w-full">{{ row.original.losses }}</div>
+                  </template>
+                  <template #winrate-cell="{ row }">
+                    <div class="tabular-nums text-right w-full">
+                      {{ (row.original.winrate ?? 0).toFixed(2) }}%
                     </div>
-                  </div>
-                </template>
-              </UTable>
-
-              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" aria-live="polite">
-                <UCard class="p-3">
-                  <span class="text-sm opacity-70">{{ $t('ladder.games') }}</span>
-                  <div class="text-xl font-semibold tabular-nums">
-                    {{ byFormat[item.value].total.totalGames }}
-                  </div>
-                </UCard>
-                <UCard class="p-3">
-                  <span class="text-sm opacity-70">{{ $t('ladder.wins') }}</span>
-                  <div class="text-xl font-semibold tabular-nums">
-                    {{ byFormat[item.value].total.totalWins }}
-                  </div>
-                </UCard>
-                <UCard class="p-3">
-                  <span class="text-sm opacity-70">{{ $t('ladder.losses') }}</span>
-                  <div class="text-xl font-semibold tabular-nums">
-                    {{ byFormat[item.value].total.totalLosses }}
-                  </div>
-                </UCard>
-                <UCard class="p-3">
-                  <span class="text-sm opacity-70">{{ $t('ladder.winrate') }}</span>
-                  <div class="text-xl font-semibold tabular-nums">
-                    {{ byFormat[item.value as FormatKey].total.winrate ?? '—' }}
-                  </div>
-                </UCard>
-              </div>
+                  </template>
+                </UTable>
+              </ClientOnly>
             </div>
           </template>
         </UTabs>

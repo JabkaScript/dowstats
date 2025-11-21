@@ -1,4 +1,5 @@
-import { and, eq, or } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
+import { getQuery, getRouterParam, createError } from 'h3'
 import { tables, useDrizzle } from '~~/server/utils/drizzle'
 import {
   parseModId,
@@ -65,12 +66,7 @@ export default defineEventHandler(async (event) => {
     .leftJoin(tables.players, eq(tables.players.id, tables.playersStats.playerId))
     .where(
       and(
-        or(
-          eq(tables.players.id, playerId),
-          eq(tables.players.sid, playerId),
-          // @ts-expect-error idParam is always number so it's safe to pass
-          eq(tables.players.serverId, idParam)
-        ),
+        eq(tables.playersStats.playerId, playerId),
         eq(tables.playersStats.modId, modId),
         eq(tables.playersStats.seasonId, seasonId)
       )

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { DowStatsResponse } from '~/types/ladder'
+import type { PlayerStatsResponse } from '~~/shared/types/relic-api'
 
 definePageMeta({
   name: 'player',
 })
 const route = useRoute()
-const sid = route.params.id as string
+const routeId = route.params.id as string
 const { statsType } = storeToRefs(useFiltersStore())
 const items = computed(() => {
   return [
@@ -13,6 +14,7 @@ const items = computed(() => {
       label: 'Relic',
       value: 'relic',
     },
+
     {
       label: 'Dow Stats',
       value: 'dowstats',
@@ -20,33 +22,55 @@ const items = computed(() => {
   ]
 })
 
-const profileNames = computed(() => {
-  return JSON.stringify([`/steam/${sid}`])
-})
-
 const { data: dowstatsData, refresh: refreshDowStatsData } = await useFetch<DowStatsResponse>(
-  `/api/v1/players/${sid}`,
+  `/api/v1/players/${routeId}`,
   {
     server: true,
   }
 )
-const { data: relicData, refresh: refreshRelicData } = await useFetch<PlayerStatsResponse>(
-  `/api/proxy/relic/community/leaderboard/getpersonalstat?title=dow1-de&profile_names=${profileNames.value}`,
-  { server: true, cache: 'default' }
+
+const steamSid = computed(() => dowstatsData.value?.item?.sid?.toString() || '')
+const profileNames = computed(() =>
+  steamSid.value ? JSON.stringify([`/steam/${steamSid.value}`]) : ''
 )
 
-const alias = computed(() => relicData?.value?.statGroups[0]?.members[0]?.alias)
+const relicData = ref<PlayerStatsResponse | null>(null)
+const relicPending = ref(false)
+const relicError = ref<string | null>(null)
+
+watch(
+  profileNames,
+  async (names) => {
+    relicError.value = null
+    relicData.value = null
+    if (!names) return
+    try {
+      relicPending.value = true
+      const res = await $fetch<PlayerStatsResponse>(
+        '/api/proxy/relic/community/leaderboard/getpersonalstat',
+        { cache: 'default', query: { title: 'dow1-de', profile_names: names } }
+      )
+      relicData.value = res
+    } catch (e) {
+      relicError.value = String((e as any)?.data || (e as any)?.message || e)
+    } finally {
+      relicPending.value = false
+    }
+  },
+  { immediate: true }
+)
+
+const alias = computed(() => relicData.value?.statGroups?.[0]?.members?.[0]?.alias)
 const pid = computed(
-  () => relicData?.value?.statGroups[0]?.members[0]?.profile_id?.toString() || ''
+  () => relicData.value?.statGroups?.[0]?.members?.[0]?.profile_id?.toString() || ''
 )
 
-function refreshData() {
-  refreshDowStatsData()
-  refreshRelicData()
+async function refreshData() {
+  await refreshDowStatsData()
 }
 
 useHead({
-  title: `${alias.value} | Dow Stats`,
+  title: `${alias.value || dowstatsData.value?.item?.name || 'Player'} | Dow Stats`,
 })
 </script>
 <template>
@@ -58,7 +82,12 @@ useHead({
           {{ $t('player.refresh') }}
         </UButton>
       </div>
-      <PlayerProfileCard :avatar="dowstatsData?.item?.avatarUrl || ''" :alias :sid :pid />
+      <PlayerProfileCard
+        :avatar="dowstatsData?.item?.avatarUrl || ''"
+        :alias
+        :sid="steamSid"
+        :pid
+      />
       <KeepAlive>
         <PlayerRelic v-if="statsType === 'relic'" :pid :relic-data />
       </KeepAlive>

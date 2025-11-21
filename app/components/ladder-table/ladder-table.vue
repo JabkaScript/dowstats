@@ -3,6 +3,7 @@ import type { TableColumn } from '@nuxt/ui'
 import type { LadderItem } from '~/types/ladder'
 
 defineProps<{ mmrType?: 'solo' | 'team' }>()
+const localePath = useLocalePath()
 
 const columns: TableColumn<LadderItem>[] = [
   {
@@ -67,7 +68,11 @@ const formatPct = (v: unknown): string => {
       {{ $t('Player') }}
     </template>
     <template #name-cell="{ row }">
-      <div class="flex items-center gap-3">
+      <NuxtLink
+        :to="localePath({ name: 'player', params: { id: String(row.original.playerId) } })"
+        class="flex items-center gap-3 hover:underline"
+        :aria-label="`Open profile: ${row.getValue('name')}`"
+      >
         <UAvatar
           class="hidden md:flex"
           :src="row.original.avatarUrl"
@@ -78,7 +83,7 @@ const formatPct = (v: unknown): string => {
         <span class="truncate text-highlighted max-w-[200px] sm:max-w-none">
           {{ row.getValue('name') }}
         </span>
-      </div>
+      </NuxtLink>
     </template>
     <template #mmr-header>
       <div class="text-right">
