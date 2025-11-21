@@ -128,16 +128,15 @@ export default defineEventHandler(async (event) => {
   // Apply minimum games condition (part of base conditions)
   baseConditions.push(sql`${totalGamesExpr} >= ${minGames}` as unknown as WhereCondition)
 
-  // Exclude banned players (active ban with unranked ban type)
   baseConditions.push(
     sql`NOT EXISTS (
       SELECT 1
       FROM players_banned pb
-      LEFT JOIN ban_type bt ON bt.ban_type = pb.ban_type
       WHERE pb.player_id = ${tables.playersStats.playerId}
-        AND ((pb.date_start IS NULL OR pb.date_start <= CURRENT_DATE)
-          AND (pb.date_end IS NULL OR pb.date_end >= CURRENT_DATE))
-        AND COALESCE(bt.is_unranked, 1) = 1
+        AND (
+          (pb.date_start IS NULL OR pb.date_start <= CURRENT_DATE)
+          AND (pb.date_end IS NULL OR pb.date_end >= CURRENT_DATE OR pb.date_end = '0000-00-00')
+        )
     )` as unknown as WhereCondition
   )
 
