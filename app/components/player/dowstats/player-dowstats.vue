@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { DowStatsResponse, DowStatsPlayerItem } from '~/types/ladder'
 import type { TableColumn } from '@nuxt/ui'
+import type { SortingState } from '@tanstack/vue-table'
 import { watch } from 'vue'
 
 interface Props {
@@ -36,12 +37,6 @@ type StatKey = keyof StatsShape
 
 const calcWinrate = (wins: number | null, games: number | null): number | null =>
   games && games > 0 && wins != null ? Math.round((wins / games) * 1000) / 10 : null
-
-// Visual color for winrate bar
-const winrateColor = (wr: number | null) => {
-  if (wr == null) return 'bg-gray-300'
-  return wr >= 60 ? 'bg-emerald-500' : wr >= 50 ? 'bg-amber-500' : 'bg-rose-500'
-}
 
 const formatKeys = (
   fmt: 1 | 2 | 3 | 4,
@@ -136,11 +131,11 @@ const tabItems = computed<{ label: string; value: FormatKey }[]>(() => [
 // No header summary and no custom header sort controls to match Relic style
 
 const columns: TableColumn<RaceStats>[] = [
-  { id: 'raceName', accessorKey: 'raceName', header: t('ladder.race') },
-  { id: 'games', accessorKey: 'games', header: t('ladder.games') },
-  { id: 'wins', accessorKey: 'wins', header: t('ladder.wins') },
-  { id: 'losses', accessorKey: 'losses', header: t('ladder.losses') },
-  { id: 'winrate', accessorKey: 'winrate', header: t('ladder.winrate') },
+  { id: 'raceName', accessorKey: 'raceName', header: t('ladder.race'), enableSorting: true },
+  { id: 'games', accessorKey: 'games', header: t('ladder.games'), enableSorting: true },
+  { id: 'wins', accessorKey: 'wins', header: t('ladder.wins'), enableSorting: true },
+  { id: 'losses', accessorKey: 'losses', header: t('ladder.losses'), enableSorting: true },
+  { id: 'winrate', accessorKey: 'winrate', header: t('ladder.winrate'), enableSorting: true },
 ]
 
 const loading = computed(() => !props.dowstatsData)
@@ -149,69 +144,141 @@ const hasData = computed(() => !!props.dowstatsData?.item?.stats)
 
 <template>
   <section class="space-y-4">
-    <UCard>
-      <div v-if="loading" class="space-y-3">
-        <USkeleton class="h-6 w-1/3" />
-        <USkeleton class="h-6 w-1/2" />
-        <USkeleton class="h-24 w-full" />
-      </div>
+    <div v-if="loading" class="space-y-3">
+      <USkeleton class="h-6 w-1/3" />
+      <USkeleton class="h-6 w-1/2" />
+      <USkeleton class="h-24 w-full" />
+    </div>
 
-      <div v-else-if="!hasData" class="py-6">
-        <UAlert color="info" icon="lucide:info" :title="$t('ladder.nothingToShow')" />
-      </div>
+    <div v-else-if="!hasData" class="py-6">
+      <UAlert color="info" icon="lucide:info" :title="$t('ladder.nothingToShow')" />
+    </div>
 
-      <div v-else>
-        <UTabs v-model="activeTab" :items="tabItems" class="w-full" aria-label="Match type">
-          <template #content="{ item }">
-            <div class="space-y-3">
-              <ClientOnly>
-                <UTable
-                  :data="byFormat[item.value as FormatKey].races"
-                  :columns
-                  :ui="{
-                    td: 'p-1',
-                    th: 'p-1',
-                    tr: 'even:bg-neutral-100 even:dark:bg-neutral-800',
-                    base: 'table-fixed w-full min-w-0 overflow-hidden',
-                  }"
-                >
-                  <template #raceName-cell="{ row }">
-                    <div class="flex items-center gap-2">
-                      <span class="font-medium">{{ row.original.raceName }}</span>
-                    </div>
-                  </template>
-                  <template #games-header>
-                    <div class="text-right">{{ $t('ladder.games') }}</div>
-                  </template>
-                  <template #wins-header>
-                    <div class="text-right">{{ $t('ladder.wins') }}</div>
-                  </template>
-                  <template #losses-header>
-                    <div class="text-right">{{ $t('ladder.losses') }}</div>
-                  </template>
-                  <template #winrate-header>
-                    <div class="text-right">{{ $t('ladder.winrate') }}</div>
-                  </template>
-                  <template #games-cell="{ row }">
-                    <div class="tabular-nums text-right w-full">{{ row.original.games }}</div>
-                  </template>
-                  <template #wins-cell="{ row }">
-                    <div class="tabular-nums text-right w-full">{{ row.original.wins }}</div>
-                  </template>
-                  <template #losses-cell="{ row }">
-                    <div class="tabular-nums text-right w-full">{{ row.original.losses }}</div>
-                  </template>
-                  <template #winrate-cell="{ row }">
-                    <div class="tabular-nums text-right w-full">
-                      {{ (row.original.winrate ?? 0).toFixed(2) }}%
-                    </div>
-                  </template>
-                </UTable>
-              </ClientOnly>
+    <div v-else>
+      <UTabs v-model="activeTab" :items="tabItems" class="w-full" aria-label="Match type">
+        <template #content="{ item }">
+          <UTable
+            v-model:sorting="sorting"
+            :data="byFormat[item.value as FormatKey].races"
+            :columns
+            :ui="{
+              base: 'table-fixed w-full min-w-0 overflow-hidden',
+              th: 'p-2 font-semibold text-neutral-700 dark:text-zinc-200',
+              td: 'p-2',
+              tr: 'even:bg-neutral-100 even:dark:bg-neutral-800 hover:bg-amber-50/60 hover:dark:bg-neutral-700/40',
+            }"
+        >
+          <template #raceName-header="{ column }">
+            <UButton
+              color="neutral"
+              variant="ghost"
+              :label="$t('ladder.race')"
+              :icon="column.getIsSorted()
+                ? column.getIsSorted() === 'asc'
+                  ? 'i-lucide-arrow-up-narrow-wide'
+                  : 'i-lucide-arrow-down-wide-narrow'
+                : 'i-lucide-arrow-up-down'"
+              class="-mx-2.5"
+              @click="column.toggleSorting(column.getIsSorted() === 'asc')"
+            />
+          </template>
+          <template #raceName-cell="{ row }">
+            <div class="flex items-center gap-2">
+              <span class="font-medium">{{ row.original.raceName }}</span>
             </div>
           </template>
-        </UTabs>
-      </div>
-    </UCard>
+          <template #games-header="{ column }">
+            <div class="flex justify-end">
+              <UButton
+                color="neutral"
+                variant="ghost"
+                :label="$t('ladder.games')"
+                :icon="column.getIsSorted()
+                  ? column.getIsSorted() === 'asc'
+                    ? 'i-lucide-arrow-up-narrow-wide'
+                    : 'i-lucide-arrow-down-wide-narrow'
+                  : 'i-lucide-arrow-up-down'"
+                class="-mx-2.5"
+                @click="column.toggleSorting(column.getIsSorted() === 'asc')"
+              />
+            </div>
+          </template>
+          <template #wins-header="{ column }">
+            <div class="flex justify-end">
+              <UButton
+                color="neutral"
+                variant="ghost"
+                :label="$t('ladder.wins')"
+                :icon="column.getIsSorted()
+                  ? column.getIsSorted() === 'asc'
+                    ? 'i-lucide-arrow-up-narrow-wide'
+                    : 'i-lucide-arrow-down-wide-narrow'
+                  : 'i-lucide-arrow-up-down'"
+                class="-mx-2.5"
+                @click="column.toggleSorting(column.getIsSorted() === 'asc')"
+              />
+            </div>
+          </template>
+          <template #losses-header="{ column }">
+            <div class="flex justify-end">
+              <UButton
+                color="neutral"
+                variant="ghost"
+                :label="$t('ladder.losses')"
+                :icon="column.getIsSorted()
+                  ? column.getIsSorted() === 'asc'
+                    ? 'i-lucide-arrow-up-narrow-wide'
+                    : 'i-lucide-arrow-down-wide-narrow'
+                  : 'i-lucide-arrow-up-down'"
+                class="-mx-2.5"
+                @click="column.toggleSorting(column.getIsSorted() === 'asc')"
+              />
+            </div>
+          </template>
+          <template #winrate-header="{ column }">
+            <div class="flex justify-end">
+              <UButton
+                color="neutral"
+                variant="ghost"
+                :label="$t('ladder.winrate')"
+                :icon="column.getIsSorted()
+                  ? column.getIsSorted() === 'asc'
+                    ? 'i-lucide-arrow-up-narrow-wide'
+                    : 'i-lucide-arrow-down-wide-narrow'
+                  : 'i-lucide-arrow-up-down'"
+                class="-mx-2.5"
+                @click="column.toggleSorting(column.getIsSorted() === 'asc')"
+              />
+            </div>
+          </template>
+            <template #games-cell="{ row }">
+              <div class="tabular-nums text-right w-full">{{ row.original.games }}</div>
+            </template>
+            <template #wins-cell="{ row }">
+              <div class="tabular-nums text-right w-full">{{ row.original.wins }}</div>
+            </template>
+            <template #losses-cell="{ row }">
+              <div class="tabular-nums text-right w-full">{{ row.original.losses }}</div>
+            </template>
+            <template #winrate-cell="{ row }">
+              <div
+                class="tabular-nums text-right w-full font-semibold"
+                :class="
+                  row.original.winrate != null
+                    ? row.original.winrate >= 60
+                      ? 'text-emerald-600 dark:text-emerald-300'
+                      : row.original.winrate >= 50
+                        ? 'text-amber-600 dark:text-amber-300'
+                        : 'text-rose-600 dark:text-rose-300'
+                    : ''
+                "
+              >
+                {{ (row.original.winrate ?? 0).toFixed(2) }}%
+              </div>
+            </template>
+          </UTable>
+        </template>
+      </UTabs>
+    </div>
   </section>
 </template>

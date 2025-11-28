@@ -389,7 +389,7 @@ export const players = mysqlTable(
     avatarUrl: text('avatar_url'),
     avatarUrlBig: text('avatar_url_big').notNull(),
     time: int().default(0),
-    sid: bigint({ mode: 'number' }),
+    sid: bigint({ mode: 'bigint', unsigned: true }),
     apm: float().notNull(),
     apmGameCounter: int('apm_game_counter').default(0).notNull(),
     p1IsCalibrate: int('p1_is_calibrate').default(0).notNull(),
@@ -749,7 +749,7 @@ export const servers = mysqlTable(
 export const steamIdToUpdate = mysqlTable(
   'steam_id_to_update',
   {
-    steamId: bigint('steam_id', { mode: 'number' }).notNull(),
+    steamId: bigint('steam_id', { mode: 'string' }).notNull(),
   },
   (table) => [unique('steam_id').on(table.steamId)]
 )

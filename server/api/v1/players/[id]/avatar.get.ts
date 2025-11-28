@@ -51,13 +51,12 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'Path parameter "id" is required',
     })
   }
-  const id = idParam as unknown as number
   const rows = await db
     .select({
       avatar: tables.players.avatarUrlBig,
     })
     .from(tables.players)
-    .where(or(eq(tables.players.id, id), eq(tables.players.sid, id)))
+    .where(or(eq(tables.players.id, Number(idParam)), eq(tables.players.sid, idParam)))
     .limit(1)
 
   if (rows.length === 0) {

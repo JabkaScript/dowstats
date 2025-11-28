@@ -35,6 +35,7 @@
   "type": "module",
   "devDependencies": {
     "@iconify-json/lucide": "1.2.68",
+    "@iconify-json/simple-icons": "^1.2.60",
     "@types/swagger-ui-dist": "^3.30.6",
     "@vue/test-utils": "^2.4.6",
     "drizzle-kit": "^0.31.4",

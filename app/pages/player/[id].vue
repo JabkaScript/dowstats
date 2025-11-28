@@ -4,23 +4,11 @@ import type { PlayerStatsResponse } from '~~/shared/types/relic-api'
 
 definePageMeta({
   name: 'player',
+  prerender: true,
 })
 const route = useRoute()
 const routeId = route.params.id as string
 const { statsType } = storeToRefs(useFiltersStore())
-const items = computed(() => {
-  return [
-    {
-      label: 'Relic',
-      value: 'relic',
-    },
-
-    {
-      label: 'Dow Stats',
-      value: 'dowstats',
-    },
-  ]
-})
 
 const { data: dowstatsData, refresh: refreshDowStatsData } = await useFetch<DowStatsResponse>(
   `/api/v1/players/${routeId}`,
@@ -30,43 +18,58 @@ const { data: dowstatsData, refresh: refreshDowStatsData } = await useFetch<DowS
 )
 
 const steamSid = computed(() => dowstatsData.value?.item?.sid?.toString() || '')
-const profileNames = computed(() =>
-  steamSid.value ? JSON.stringify([`/steam/${steamSid.value}`]) : ''
-)
+const items = computed(() => {
+  const hasRelic = !!steamSid.value
+  return hasRelic
+    ? [
+        { label: 'Relic', value: 'relic' },
+        { label: 'Dow Stats', value: 'dowstats' },
+      ]
+    : [{ label: 'Dow Stats', value: 'dowstats' }]
+})
+
+const profileNames = computed(() => {
+  return steamSid.value ? JSON.stringify([`/steam/${steamSid.value}`]) : ''
+})
 
 const relicData = ref<PlayerStatsResponse | null>(null)
 const relicPending = ref(false)
 const relicError = ref<string | null>(null)
 
-watch(
-  profileNames,
-  async (names) => {
-    relicError.value = null
-    relicData.value = null
-    if (!names) return
-    try {
-      relicPending.value = true
-      const res = await $fetch<PlayerStatsResponse>(
-        '/api/proxy/relic/community/leaderboard/getpersonalstat',
-        { cache: 'default', query: { title: 'dow1-de', profile_names: names } }
-      )
-      relicData.value = res
-    } catch (e) {
-      relicError.value = String((e as any)?.data || (e as any)?.message || e)
-    } finally {
-      relicPending.value = false
-    }
-  },
-  { immediate: true }
+const alias = computed(
+  () =>
+    relicData.value?.statGroups?.[0]?.members?.[0]?.alias || dowstatsData.value?.item?.name || ''
 )
-
-const alias = computed(() => relicData.value?.statGroups?.[0]?.members?.[0]?.alias)
 const pid = computed(
   () => relicData.value?.statGroups?.[0]?.members?.[0]?.profile_id?.toString() || ''
 )
 
 async function refreshData() {
   await refreshDowStatsData()
+}
+
+watch(
+  steamSid,
+  (sid) => {
+    if (!sid) {
+      statsType.value = 'dowstats'
+    }
+  },
+  { immediate: true }
+)
+if (steamSid.value) {
+  relicError.value = null
+  relicPending.value = true
+  const { data } = await useFetch<PlayerStatsResponse>(
+    '/api/proxy/relic/community/leaderboard/getpersonalstat',
+    {
+      server: true,
+      cache: 'default',
+      query: { title: 'dow1-de', profile_names: profileNames },
+    }
+  )
+  relicData.value = data.value as PlayerStatsResponse
+  relicPending.value = false
 }
 
 useHead({
