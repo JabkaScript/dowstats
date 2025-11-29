@@ -62,25 +62,24 @@ export default defineEventHandler(async (event) => {
       serverId: tables.players.serverId,
       stats: tables.playersStats,
     })
-    .from(tables.playersStats)
-    .leftJoin(tables.players, eq(tables.players.id, tables.playersStats.playerId))
-    .where(
+    .from(tables.players)
+    .leftJoin(
+      tables.playersStats,
       and(
-        eq(tables.playersStats.playerId, playerId),
+        eq(tables.playersStats.playerId, tables.players.id),
         eq(tables.playersStats.modId, modId),
         eq(tables.playersStats.seasonId, seasonId)
       )
     )
+    .where(eq(tables.players.id, playerId))
     .limit(1)
 
   const row = rows[0]
-
   if (!row) {
     throw createError({
       statusCode: 400,
       statusMessage: 'Player not found',
     })
   }
-
   return { item: row, meta: { playerId, modId, seasonId } }
 })

@@ -53,6 +53,7 @@ export async function getPlayerId(id?: string): Promise<number> {
     throw Error("Parameter 'id' must be not null.")
   }
   const db = useDrizzle()
+
   const user = await db
     .select({ id: players.id })
     .from(tables.players)

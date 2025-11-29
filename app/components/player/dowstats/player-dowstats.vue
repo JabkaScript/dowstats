@@ -167,90 +167,100 @@ const hasData = computed(() => !!props.dowstatsData?.item?.stats)
               td: 'p-2',
               tr: 'even:bg-neutral-100 even:dark:bg-neutral-800 hover:bg-amber-50/60 hover:dark:bg-neutral-700/40',
             }"
-        >
-          <template #raceName-header="{ column }">
-            <UButton
-              color="neutral"
-              variant="ghost"
-              :label="$t('ladder.race')"
-              :icon="column.getIsSorted()
-                ? column.getIsSorted() === 'asc'
-                  ? 'i-lucide-arrow-up-narrow-wide'
-                  : 'i-lucide-arrow-down-wide-narrow'
-                : 'i-lucide-arrow-up-down'"
-              class="-mx-2.5"
-              @click="column.toggleSorting(column.getIsSorted() === 'asc')"
-            />
-          </template>
-          <template #raceName-cell="{ row }">
-            <div class="flex items-center gap-2">
-              <span class="font-medium">{{ row.original.raceName }}</span>
-            </div>
-          </template>
-          <template #games-header="{ column }">
-            <div class="flex justify-end">
+          >
+            <template #raceName-header="{ column }">
               <UButton
                 color="neutral"
                 variant="ghost"
-                :label="$t('ladder.games')"
-                :icon="column.getIsSorted()
-                  ? column.getIsSorted() === 'asc'
-                    ? 'i-lucide-arrow-up-narrow-wide'
-                    : 'i-lucide-arrow-down-wide-narrow'
-                  : 'i-lucide-arrow-up-down'"
+                :label="$t('ladder.race')"
+                :icon="
+                  column.getIsSorted()
+                    ? column.getIsSorted() === 'asc'
+                      ? 'i-lucide-arrow-up-narrow-wide'
+                      : 'i-lucide-arrow-down-wide-narrow'
+                    : 'i-lucide-arrow-up-down'
+                "
                 class="-mx-2.5"
                 @click="column.toggleSorting(column.getIsSorted() === 'asc')"
               />
-            </div>
-          </template>
-          <template #wins-header="{ column }">
-            <div class="flex justify-end">
-              <UButton
-                color="neutral"
-                variant="ghost"
-                :label="$t('ladder.wins')"
-                :icon="column.getIsSorted()
-                  ? column.getIsSorted() === 'asc'
-                    ? 'i-lucide-arrow-up-narrow-wide'
-                    : 'i-lucide-arrow-down-wide-narrow'
-                  : 'i-lucide-arrow-up-down'"
-                class="-mx-2.5"
-                @click="column.toggleSorting(column.getIsSorted() === 'asc')"
-              />
-            </div>
-          </template>
-          <template #losses-header="{ column }">
-            <div class="flex justify-end">
-              <UButton
-                color="neutral"
-                variant="ghost"
-                :label="$t('ladder.losses')"
-                :icon="column.getIsSorted()
-                  ? column.getIsSorted() === 'asc'
-                    ? 'i-lucide-arrow-up-narrow-wide'
-                    : 'i-lucide-arrow-down-wide-narrow'
-                  : 'i-lucide-arrow-up-down'"
-                class="-mx-2.5"
-                @click="column.toggleSorting(column.getIsSorted() === 'asc')"
-              />
-            </div>
-          </template>
-          <template #winrate-header="{ column }">
-            <div class="flex justify-end">
-              <UButton
-                color="neutral"
-                variant="ghost"
-                :label="$t('ladder.winrate')"
-                :icon="column.getIsSorted()
-                  ? column.getIsSorted() === 'asc'
-                    ? 'i-lucide-arrow-up-narrow-wide'
-                    : 'i-lucide-arrow-down-wide-narrow'
-                  : 'i-lucide-arrow-up-down'"
-                class="-mx-2.5"
-                @click="column.toggleSorting(column.getIsSorted() === 'asc')"
-              />
-            </div>
-          </template>
+            </template>
+            <template #raceName-cell="{ row }">
+              <div class="flex items-center gap-2">
+                <span class="font-medium">{{ row.original.raceName }}</span>
+              </div>
+            </template>
+            <template #games-header="{ column }">
+              <div class="flex justify-end">
+                <UButton
+                  color="neutral"
+                  variant="ghost"
+                  :label="$t('ladder.games')"
+                  :icon="
+                    column.getIsSorted()
+                      ? column.getIsSorted() === 'asc'
+                        ? 'i-lucide-arrow-up-narrow-wide'
+                        : 'i-lucide-arrow-down-wide-narrow'
+                      : 'i-lucide-arrow-up-down'
+                  "
+                  class="-mx-2.5"
+                  @click="column.toggleSorting(column.getIsSorted() === 'asc')"
+                />
+              </div>
+            </template>
+            <template #wins-header="{ column }">
+              <div class="flex justify-end">
+                <UButton
+                  color="neutral"
+                  variant="ghost"
+                  :label="$t('ladder.wins')"
+                  :icon="
+                    column.getIsSorted()
+                      ? column.getIsSorted() === 'asc'
+                        ? 'i-lucide-arrow-up-narrow-wide'
+                        : 'i-lucide-arrow-down-wide-narrow'
+                      : 'i-lucide-arrow-up-down'
+                  "
+                  class="-mx-2.5"
+                  @click="column.toggleSorting(column.getIsSorted() === 'asc')"
+                />
+              </div>
+            </template>
+            <template #losses-header="{ column }">
+              <div class="flex justify-end">
+                <UButton
+                  color="neutral"
+                  variant="ghost"
+                  :label="$t('ladder.losses')"
+                  :icon="
+                    column.getIsSorted()
+                      ? column.getIsSorted() === 'asc'
+                        ? 'i-lucide-arrow-up-narrow-wide'
+                        : 'i-lucide-arrow-down-wide-narrow'
+                      : 'i-lucide-arrow-up-down'
+                  "
+                  class="-mx-2.5"
+                  @click="column.toggleSorting(column.getIsSorted() === 'asc')"
+                />
+              </div>
+            </template>
+            <template #winrate-header="{ column }">
+              <div class="flex justify-end">
+                <UButton
+                  color="neutral"
+                  variant="ghost"
+                  :label="$t('ladder.winrate')"
+                  :icon="
+                    column.getIsSorted()
+                      ? column.getIsSorted() === 'asc'
+                        ? 'i-lucide-arrow-up-narrow-wide'
+                        : 'i-lucide-arrow-down-wide-narrow'
+                      : 'i-lucide-arrow-up-down'
+                  "
+                  class="-mx-2.5"
+                  @click="column.toggleSorting(column.getIsSorted() === 'asc')"
+                />
+              </div>
+            </template>
             <template #games-cell="{ row }">
               <div class="tabular-nums text-right w-full">{{ row.original.games }}</div>
             </template>
