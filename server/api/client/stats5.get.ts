@@ -4,6 +4,98 @@ import { eq, inArray, and, sql, desc } from 'drizzle-orm'
 import fs from 'node:fs'
 import path from 'node:path'
 
+defineRouteMeta({
+  openAPI: {
+    description:
+      'Legacy stats5 API endpoint for client integration. Returns detailed player statistics including race winrates, MMR, and rank. Handles player creation if missing.',
+    parameters: [
+      {
+        in: 'query',
+        name: 'sids',
+        required: true,
+        description: 'Comma-separated list of Steam IDs (bigint)',
+        schema: { type: 'string' },
+      },
+      {
+        in: 'query',
+        name: 'nicks',
+        required: false,
+        description: 'Comma-separated list of base64 encoded nicknames corresponding to sids',
+        schema: { type: 'string' },
+      },
+      {
+        in: 'query',
+        name: 'mod_tech_name',
+        required: false,
+        description: 'Technical name of the mod (e.g. "dxp2", "dowde")',
+        schema: { type: 'string' },
+      },
+      {
+        in: 'query',
+        name: 'modId',
+        required: false,
+        description: 'Mod ID (alternative to mod_tech_name)',
+        schema: { type: 'integer' },
+      },
+      {
+        in: 'query',
+        name: 'seasonId',
+        required: false,
+        description: 'Season ID. If not provided, active season is used.',
+        schema: { type: 'integer' },
+      },
+      {
+        in: 'query',
+        name: 'api_secret',
+        required: false,
+        description: 'API secret for authentication (alternative to Authorization header)',
+        schema: { type: 'string' },
+      },
+    ],
+    security: [{ BearerAuth: [] }, { ApiKeyAuth: [] }],
+    responses: {
+      200: {
+        description: 'Successful response',
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              properties: {
+                modName: { type: 'string' },
+                seasonName: { type: 'string' },
+                stats: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      sid: { type: 'string' },
+                      name: { type: 'string', nullable: true },
+                      avatarUrl: { type: 'string', nullable: true },
+                      gamesCount: { type: 'integer' },
+                      winsCount: { type: 'integer' },
+                      winRate: { type: 'integer' },
+                      mmr: { type: 'integer' },
+                      mmr1v1: { type: 'integer' },
+                      rank: { type: 'integer' },
+                      race: { type: 'integer' },
+                      apm: { type: 'number' },
+                      isBanned: { type: 'boolean' },
+                      banType: { type: 'string', nullable: true },
+                      banReason: { type: 'string', nullable: true },
+                      custom_games_mmr: { type: 'integer' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      401: { description: 'Unauthorized' },
+    },
+  },
+})
+
 // Helper to decode base64 nickname
 function decodeNickRaw(raw: string): string | null {
   raw = (raw || '').trim()
@@ -14,6 +106,7 @@ function decodeNickRaw(raw: string): string | null {
     const buffer = Buffer.from(raw, 'base64')
     const decoded = buffer.toString('utf8').trim()
     // Remove control characters (approximate PHP's preg_replace('/[\x00-\x1F\x7F]/', '', $decoded))
+    // eslint-disable-next-line no-control-regex
     const sanitized = decoded.replace(/[\x00-\x1F\x7F]/g, '')
     if (!sanitized || sanitized.length > 64) {
       return null
@@ -44,6 +137,24 @@ async function getRankByMmr(
   return (Number(res[0]?.count) || 0) + 1
 }
 
+interface StatsItem {
+  sid: string
+  name: string | null
+  avatarUrl: string | null
+  gamesCount: number
+  winsCount: number
+  winRate: number
+  mmr: number
+  mmr1v1: number
+  rank: number
+  race: number
+  apm: number
+  isBanned: boolean
+  banType?: string | null
+  banReason?: string | null
+  custom_games_mmr?: number
+}
+
 export default defineEventHandler(async (event) => {
   const db = useDrizzle()
   const query = getQuery(event)
@@ -65,7 +176,7 @@ export default defineEventHandler(async (event) => {
           fileSecret = match[1]
         }
       }
-    } catch (e) {
+    } catch {
       // Ignore error
     }
   }
@@ -351,7 +462,7 @@ export default defineEventHandler(async (event) => {
     )
 
   // Process rows
-  const stats = []
+  const stats: StatsItem[] = []
   for (const row of statsRows) {
     let all = 0
     let win = 0
@@ -377,7 +488,7 @@ export default defineEventHandler(async (event) => {
     const mmr = Number(row.mmr || 0)
     const rank = await getRankByMmr(db, mmr, modId, seasonId)
 
-    const item: any = {
+    const item: StatsItem = {
       sid: String(row.sid),
       name: row.name,
       avatarUrl: row.avatarUrl,
