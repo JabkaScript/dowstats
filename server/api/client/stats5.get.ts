@@ -3,6 +3,8 @@ import { tables, useDrizzle } from '~~/server/utils/drizzle'
 import { eq, inArray, and, sql, desc } from 'drizzle-orm'
 import fs from 'node:fs'
 import path from 'node:path'
+import { StatsItem } from '~~/server/interfaces/client'
+import { fetchSteamProfiles, pickAvatars } from '~~/server/utils/steam'
 
 defineRouteMeta({
   openAPI: {
@@ -135,24 +137,6 @@ async function getRankByMmr(
       )
     )
   return (Number(res[0]?.count) || 0) + 1
-}
-
-interface StatsItem {
-  sid: string
-  name: string | null
-  avatarUrl: string | null
-  gamesCount: number
-  winsCount: number
-  winRate: number
-  mmr: number
-  mmr1v1: number
-  rank: number
-  race: number
-  apm: number
-  isBanned: boolean
-  banType?: string | null
-  banReason?: string | null
-  custom_games_mmr?: number
 }
 
 export default defineEventHandler(async (event) => {
@@ -297,6 +281,8 @@ export default defineEventHandler(async (event) => {
 
   // Create missing players
   if (missingSids.length > 0) {
+    // Try to fetch Steam profiles for missing SIDs (if API key configured)
+    const steamProfiles = await fetchSteamProfiles(missingSids)
     for (const sid of missingSids) {
       const idx = sids.indexOf(sid)
       let name = ''
@@ -305,25 +291,50 @@ export default defineEventHandler(async (event) => {
       } else {
         name = sid
       }
-      const avatarUrl = '/images/default_avatar.jpg'
+      // Prefer Steam persona name if present
+      const sp = steamProfiles[sid]
+      if (sp?.personaname) name = sp.personaname
+
+      // Pick avatars from Steam or fallback
+      const picked = sp ? pickAvatars(sp) : undefined
+      const avatarSmall = picked?.medium || picked?.small || '/images/default_avatar.jpg'
+      const avatarBig = picked?.full || avatarSmall
 
       // Insert ignore
-      // TODO: Add Steam API integration to fetch real name and avatar
       await db
         .insert(tables.players)
         .ignore()
         .values({
           sid: BigInt(sid),
           name: name,
-          avatarUrl: avatarUrl,
-          avatarUrlBig: avatarUrl, // Schema requires this
+          avatarUrl: avatarSmall,
+          avatarUrlBig: avatarBig, // Schema requires this
           apm: 0,
           lastUpdateTime: new Date().toISOString(),
         })
     }
   }
 
-  // TODO: Implement refreshPlayersData (fetch from Steam for existing players)
+  // Refresh name/avatar for all provided SIDs from Steam (best-effort)
+  try {
+    const steamProfilesAll = await fetchSteamProfiles(sids)
+    for (const sid of sids) {
+      const sp = steamProfilesAll[sid]
+      if (!sp) continue
+      const picked = pickAvatars(sp)
+      const set: Record<string, any> = { lastUpdateTime: new Date().toISOString() }
+      if (sp.personaname) set.name = sp.personaname
+      if (picked.medium || picked.small) set.avatarUrl = picked.medium || picked.small
+      if (picked.full || picked.medium || picked.small)
+        set.avatarUrlBig = picked.full || picked.medium || picked.small
+      await db
+        .update(tables.players)
+        .set(set)
+        .where(eq(tables.players.sid, BigInt(sid)))
+    }
+  } catch {
+    // ignore refresh errors to keep endpoint resilient
+  }
 
   // Refetch players including new ones
   const allPlayers = await db.query.players.findMany({
@@ -461,7 +472,6 @@ export default defineEventHandler(async (event) => {
       )
     )
 
-  // Process rows
   const stats: StatsItem[] = []
   for (const row of statsRows) {
     let all = 0

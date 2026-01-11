@@ -17,6 +17,12 @@ export default defineNuxtConfig({
     dbUser: process.env.NUXT_DB_USER,
     dbPassword: process.env.NUXT_DB_PASSWORD,
     dbName: process.env.NUXT_DB_NAME,
+    steamApiKey: process.env.NUXT_STEAM_API_KEY,
+    s3Key: process.env.NUXT_AWS_S3_KEY,
+    s3Secret: process.env.NUXT_AWS_S3_SECRET,
+    s3Region: process.env.NUXT_AWS_S3_REGION || 'ru-central1',
+    s3Endpoint: process.env.NUXT_AWS_S3_ENDPOINT || 'https://storage.yandexcloud.net',
+    s3Bucket: process.env.NUXT_AWS_S3_BUCKET || 'replays',
   },
 
   css: ['~/assets/css/main.css', '~~/node_modules/flag-icons/css/flag-icons.min.css'],
