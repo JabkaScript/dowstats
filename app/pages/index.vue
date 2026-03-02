@@ -21,7 +21,6 @@ const page = ref(1)
 const pageSize = ref(50)
 const items = ref<LadderItem[]>([])
 const isLoadingMore = ref(false)
-const endReached = computed(() => items.value.length >= (data.value?.meta?.total || 0))
 
 const baseQuery = computed(() => ({
   mod: mod.value,
@@ -34,15 +33,30 @@ const baseQuery = computed(() => ({
   pageSize: pageSize.value,
 }))
 
+const fetchKey = computed(
+  () =>
+    `ladder:${mod.value}:${server.value}:${season.value}:${mmrType.value}:${sort.value}:${minGames.value}:${pageSize.value}:${searchDebounced.value}`
+)
+
 const { data, refresh, pending } = await useFetch<LadderResponse>('/api/v1/ladder', {
+  key: fetchKey,
   query: baseQuery,
+  watch: false,
+  server: true,
 })
 
-const total = computed(() => data.value?.meta?.total || 0)
-const shownFrom = computed(() => (total.value === 0 ? 0 : items.value.length > 0 ? 1 : 0))
-const shownTo = computed(() => Math.min(items.value.length, total.value))
+const total = computed<number | undefined>(() => data.value?.meta?.total)
+const totalSafe = computed(() => total.value ?? 0)
+const endReached = computed(
+  () => typeof total.value === 'number' && items.value.length >= total.value
+)
+const isInitialLoading = computed(() => pending.value && items.value.length === 0)
+
+const shownFrom = computed(() => (totalSafe.value === 0 ? 0 : items.value.length > 0 ? 1 : 0))
+const shownTo = computed(() => Math.min(items.value.length, totalSafe.value))
 
 const loadMore = async () => {
+  if (pending.value) return
   if (isLoadingMore.value) return
   if (endReached.value) return
   isLoadingMore.value = true
@@ -62,15 +76,22 @@ const loadMore = async () => {
 }
 
 const sentinel = ref<HTMLElement | null>(null)
-useIntersectionObserver(
-  sentinel,
-  ([entry]) => {
-    if (entry?.isIntersecting && !pending.value && !isLoadingMore.value) {
-      loadMore()
-    }
-  },
-  { root: null, rootMargin: '200px', threshold: 0 }
-)
+if (import.meta.client) {
+  useIntersectionObserver(
+    sentinel,
+    ([entry]) => {
+      if (
+        entry?.isIntersecting &&
+        items.value.length > 0 &&
+        !pending.value &&
+        !isLoadingMore.value
+      ) {
+        loadMore()
+      }
+    },
+    { root: null, rootMargin: '200px', threshold: 0 }
+  )
+}
 
 watch(
   () => data.value?.items,
@@ -113,7 +134,9 @@ watchDebounced(
               variant="ghost"
               color="primary"
               icon="lucide:chevron-down"
-              :ui="{ base: 'transition-transform', icon: showFilters ? 'rotate-180' : '' }"
+              :ui="{
+                leadingIcon: ['transition-transform', showFilters ? 'rotate-180' : ''],
+              }"
               @click="showFilters = !showFilters"
             />
           </div>
@@ -190,8 +213,11 @@ watchDebounced(
         class="flex items-center justify-between py-3 text-xs sm:text-sm text-gray-500 dark:text-gray-400"
       >
         <div>
-          <span v-if="total">
-            {{ $t('ladder.showingRangeOfTotal', { from: shownFrom, to: shownTo, total }) }}
+          <span v-if="isInitialLoading">Loading...</span>
+          <span v-else-if="totalSafe">
+            {{
+              $t('ladder.showingRangeOfTotal', { from: shownFrom, to: shownTo, total: totalSafe })
+            }}
           </span>
           <span v-else>{{ $t('ladder.noResults') }}</span>
         </div>
@@ -200,17 +226,17 @@ watchDebounced(
 
       <LadderTable
         :data="items"
-        :loading="pending && items.length === 0"
+        :loading="isInitialLoading"
         :ui="{ td: 'p-2 sm:p-3', th: 'p-2 sm:p-3' }"
         :mmr-type="mmrType"
         class="rounded-md border border-neutral-200/60 dark:border-neutral-800/60"
       />
 
       <div ref="sentinel" />
-      <div v-if="!endReached" class="flex justify-center py-6">
+      <div v-if="pending || isLoadingMore" class="flex justify-center py-6">
         <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-          <UIcon v-if="isLoadingMore" name="i-lucide-loader-circle" class="h-5 w-5 animate-spin" />
-          <span v-if="isLoadingMore">Loading...</span>
+          <UIcon name="i-lucide-loader-circle" class="h-5 w-5 animate-spin" />
+          <span>Loading...</span>
         </div>
       </div>
     </UPage>

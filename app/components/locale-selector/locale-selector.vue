@@ -17,7 +17,7 @@ async function updateLocale(newLocale: 'en' | 'ru') {
       v-for="loc in locales"
       :key="loc.code"
       :variant="locale === loc.code ? 'solid' : 'ghost'"
-      :color="locale === loc.code ? 'primary' : 'gray'"
+      :color="locale === loc.code ? 'primary' : 'neutral'"
       size="xs"
       class="min-w-0 px-2 py-1"
       @click="updateLocale(loc.code as 'en' | 'ru')"

@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import type { TableColumn } from '@nuxt/ui'
 import type { SortingState } from '@tanstack/vue-table'
+import type { LeaderboardStat } from '~~/shared/types/relic-api'
 const boards = useRelicLeaderboards()
 const { t } = useI18n()
-const columns = computed(() => {
+const props = defineProps<{ data?: LeaderboardStat[] }>()
+const columns = computed<TableColumn<LeaderboardStat>[]>(() => {
   return [
     {
       id: 'board',
@@ -72,12 +75,24 @@ function wrClass(wr: number) {
   return 'text-rose-600 dark:text-rose-300'
 }
 
+const winratePct = (row: LeaderboardStat) => {
+  const wins = Number(row.wins ?? 0)
+  const losses = Number(row.losses ?? 0)
+  const total = wins + losses
+  return total > 0 ? (wins / total) * 100 : 0
+}
+
+const gamesCount = (row: LeaderboardStat) => {
+  return Number(row.wins ?? 0) + Number(row.losses ?? 0)
+}
+
 const sorting = ref<SortingState>([])
 </script>
 <template>
   <UTable
     v-model:sorting="sorting"
     :sorting-options="{ enableSorting: true }"
+    :data="props.data || []"
     :columns
     :ui="{
       base: 'table-fixed w-full min-w-0 overflow-hidden',
@@ -250,22 +265,14 @@ const sorting = ref<SortingState>([])
     <template #winrate-cell="{ row }">
       <div
         class="tabular-nums text-right w-full font-semibold"
-        :class="
-          wrClass(
-            Number(
-              ((row.original.wins / (row.original.wins + row.original.losses)) * 100 || 0).toFixed(
-                2
-              )
-            )
-          )
-        "
+        :class="wrClass(Number(winratePct(row.original).toFixed(2)))"
       >
-        {{ ((row.original.wins / (row.original.wins + row.original.losses)) * 100).toFixed(2) }}%
+        {{ winratePct(row.original).toFixed(2) }}%
       </div>
     </template>
     <template #games-cell="{ row }">
       <div class="tabular-nums text-right w-full">
-        {{ row.original.wins + row.original.losses }}
+        {{ gamesCount(row.original) }}
       </div>
     </template>
     <template #currentStreak-cell="{ row }">

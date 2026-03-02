@@ -75,7 +75,7 @@ const formatPct = (v: unknown): string => {
       >
         <UAvatar
           class="hidden md:flex"
-          :src="row.original.avatarUrl"
+          :src="row.original.avatarUrl ?? undefined"
           alt="Avatar"
           size="sm"
           icon="i-lucide-user"

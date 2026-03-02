@@ -20,15 +20,15 @@ let parseModId: any,
 
 beforeAll(async () => {
   const mod = await import('../../server/utils/ladderParams')
-  parseModId = (mod as any).parseModId
-  parseMmrType = (mod as any).parseMmrType
-  parseSort = (mod as any).parseSort
-  parseServerId = (mod as any).parseServerId
-  parsePagination = (mod as any).parsePagination
-  parseMinGames = (mod as any).parseMinGames
-  parseProvidedSeason = (mod as any).parseProvidedSeason
-  buildSearchCondition = (mod as any).buildSearchCondition
-  resolveSeasonId = (mod as any).resolveSeasonId
+  parseModId = (mod as any).ladderParseModId
+  parseMmrType = (mod as any).ladderParseMmrType
+  parseSort = (mod as any).ladderParseSort
+  parseServerId = (mod as any).ladderParseServerId
+  parsePagination = (mod as any).ladderParsePagination
+  parseMinGames = (mod as any).ladderParseMinGames
+  parseProvidedSeason = (mod as any).ladderParseProvidedSeason
+  buildSearchCondition = (mod as any).ladderBuildSearchCondition
+  resolveSeasonId = (mod as any).ladderResolveSeasonId
 })
 
 // Minimal fake DB to satisfy resolveSeasonId queries

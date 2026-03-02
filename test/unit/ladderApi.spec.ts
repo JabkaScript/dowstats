@@ -73,16 +73,16 @@ beforeEach(async () => {
 
   // Dynamically import real parameter helpers after mocking drizzle
   const lp = await import('../../server/utils/ladderParams')
-  vi.stubGlobal('parseModId', lp.parseModId)
-  vi.stubGlobal('parseMmrType', lp.parseMmrType)
-  vi.stubGlobal('parseSort', lp.parseSort)
-  vi.stubGlobal('parseServerId', lp.parseServerId)
-  vi.stubGlobal('parsePagination', lp.parsePagination)
-  vi.stubGlobal('parseProvidedSeason', lp.parseProvidedSeason)
-  vi.stubGlobal('parseMinGames', lp.parseMinGames)
-  vi.stubGlobal('buildSearchCondition', lp.buildSearchCondition)
-  vi.stubGlobal('getTotalGamesExpr', lp.getTotalGamesExpr as any)
-  vi.stubGlobal('getTotalWinsExpr', lp.getTotalWinsExpr as any)
+  vi.stubGlobal('parseModId', lp.ladderParseModId)
+  vi.stubGlobal('parseMmrType', lp.ladderParseMmrType)
+  vi.stubGlobal('parseSort', lp.ladderParseSort)
+  vi.stubGlobal('parseServerId', lp.ladderParseServerId)
+  vi.stubGlobal('parsePagination', lp.ladderParsePagination)
+  vi.stubGlobal('parseProvidedSeason', lp.ladderParseProvidedSeason)
+  vi.stubGlobal('parseMinGames', lp.ladderParseMinGames)
+  vi.stubGlobal('buildSearchCondition', lp.ladderBuildSearchCondition)
+  vi.stubGlobal('getTotalGamesExpr', lp.ladderGetTotalGamesExpr as any)
+  vi.stubGlobal('getTotalWinsExpr', lp.ladderGetTotalWinsExpr as any)
 })
 
 describe('GET /api/v1/ladder - handler', () => {

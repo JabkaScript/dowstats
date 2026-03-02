@@ -749,7 +749,7 @@ export const servers = mysqlTable(
 export const steamIdToUpdate = mysqlTable(
   'steam_id_to_update',
   {
-    steamId: bigint('steam_id', { mode: 'string' }).notNull(),
+    steamId: bigint('steam_id', { mode: 'bigint' }).notNull(),
   },
   (table) => [unique('steam_id').on(table.steamId)]
 )

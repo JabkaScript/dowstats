@@ -92,7 +92,7 @@ useHead({
         :pid
       />
       <KeepAlive>
-        <PlayerRelic v-if="statsType === 'relic'" :pid :relic-data />
+        <PlayerRelic v-if="statsType === 'relic'" :pid :relic-data="relicData ?? undefined" />
       </KeepAlive>
       <PlayerDowstats v-if="statsType === 'dowstats'" :pid :dowstats-data />
     </UPage>

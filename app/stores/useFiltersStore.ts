@@ -1,10 +1,15 @@
 export const useFiltersStore = defineStore('filters', () => {
   const decode = (v: string) => v?.toString()
   const encode = (v: string) => v?.toString()
+  const decodeMmrType = (v: string) => (v === 'team' ? 'team' : 'solo')
   const mod = useCookie('mod', { default: () => '1', encode, decode })
   const server = useCookie('server', { default: () => '1', encode, decode })
   const season = useCookie('season', { default: () => '1', encode, decode })
-  const mmrType = useCookie('mmr-type', { default: () => 'solo', encode, decode })
+  const mmrType = useCookie<'solo' | 'team'>('mmr-type', {
+    default: () => 'solo',
+    encode,
+    decode: decodeMmrType,
+  })
   const statsType = useCookie('stats-type', { default: () => 'relic', encode, decode })
   const playerProfileMatchType = useCookie('player-profile-match-type', {
     default: () => '1v1',

@@ -51,12 +51,26 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'Path parameter "id" is required',
     })
   }
+  const idAsNumber = Number(idParam)
+  if (!Number.isFinite(idAsNumber) || idAsNumber <= 0) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Path parameter "id" must be a positive integer',
+    })
+  }
+
+  const idAsBigInt = /^\d+$/.test(idParam) ? BigInt(idParam) : null
+
   const rows = await db
     .select({
       avatar: tables.players.avatarUrlBig,
     })
     .from(tables.players)
-    .where(or(eq(tables.players.id, Number(idParam)), eq(tables.players.sid, idParam)))
+    .where(
+      idAsBigInt !== null
+        ? or(eq(tables.players.id, idAsNumber), eq(tables.players.sid, idAsBigInt))
+        : eq(tables.players.id, idAsNumber)
+    )
     .limit(1)
 
   if (rows.length === 0) {
@@ -66,5 +80,11 @@ export default defineEventHandler(async (event) => {
     })
   }
   const row = rows[0]
+  if (!row) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Player not found',
+    })
+  }
   return row.avatar
 })

@@ -1,68 +1,23 @@
-import { sql, eq, desc, like, or } from 'drizzle-orm'
+import { sql, eq, desc } from 'drizzle-orm'
 import { createError } from 'h3'
 import type { LadderQuery, WhereCondition } from '~~/server/interfaces/ladder'
 import { tables, useDrizzle } from './drizzle'
-import { players } from '../database/schema'
 
-export type DB = ReturnType<typeof useDrizzle>
+export type LadderDB = ReturnType<typeof useDrizzle>
 
-export async function parseModId(
-  query: Partial<LadderQuery>,
-  db: DB,
-  required = false
-): Promise<number> {
-  const providedId = query.mod
-  // not required and no id - return dxp2
-  if (!required && !providedId) {
-    const dxp2Mod = await db
-      .select({ id: tables.mods.id })
-      .from(tables.mods)
-      .where(eq(tables.mods.technicalName, 'dxp2'))
-      .limit(1)
-    return dxp2Mod[0]?.id || 0
-  }
-  if (providedId) {
-    const mod = await db
-      .select({ id: tables.mods.id })
-      .from(tables.mods)
-      .where(
-        or(
-          eq(tables.mods.id, providedId as unknown as number),
-          like(tables.mods.technicalName, `${providedId}`)
-        )
-      )
-      .limit(1)
-    if (mod[0]?.id) {
-      return mod[0].id
-    }
-  }
-  // required
-  if (required && !providedId) {
+export function ladderParseModId(query: Partial<LadderQuery>): number {
+  const raw = query.mod
+  const modId = Number(raw)
+  if (!raw || Number.isNaN(modId) || modId <= 0) {
     throw createError({
       statusCode: 400,
-      statusMessage:
-        "Query parameter 'mod' (mod_id or mod_tech_name) is required and must be an integer or a string.",
+      statusMessage: "Parameter 'mod' must be a positive integer.",
     })
   }
-  return Number(providedId)
+  return modId
 }
 
-export async function getPlayerId(id?: string): Promise<number> {
-  const providedId = id
-  if (!providedId) {
-    throw Error("Parameter 'id' must be not null.")
-  }
-  const db = useDrizzle()
-
-  const user = await db
-    .select({ id: players.id })
-    .from(tables.players)
-    // @ts-expect-error can't safe parse BigInt - so just pass it straigt to base
-    .where(or(eq(tables.players.id, providedId), eq(tables.players.sid, providedId)))
-    .limit(1)
-  return user[0]?.id || 0
-}
-export function parseMmrType(query: Partial<LadderQuery>): 'solo' | 'team' {
+export function ladderParseMmrType(query: Partial<LadderQuery>): 'solo' | 'team' {
   const mmrType = (query.mmrType || 'solo').toLowerCase() as 'solo' | 'team'
   if (mmrType !== 'solo' && mmrType !== 'team') {
     throw createError({
@@ -73,11 +28,11 @@ export function parseMmrType(query: Partial<LadderQuery>): 'solo' | 'team' {
   return mmrType
 }
 
-export function parseSort(query: Partial<LadderQuery>): 'asc' | 'desc' {
+export function ladderParseSort(query: Partial<LadderQuery>): 'asc' | 'desc' {
   return (query.sort || 'desc').toLowerCase() === 'asc' ? 'asc' : 'desc'
 }
 
-export function parseServerId(query: Partial<LadderQuery>): number | undefined {
+export function ladderParseServerId(query: Partial<LadderQuery>): number | undefined {
   const serverId = query.server ? Number(query.server) : undefined
   if (serverId !== undefined && (Number.isNaN(serverId) || serverId <= 0)) {
     throw createError({
@@ -88,7 +43,7 @@ export function parseServerId(query: Partial<LadderQuery>): number | undefined {
   return serverId
 }
 
-export function parsePagination(query: Partial<LadderQuery>): {
+export function ladderParsePagination(query: Partial<LadderQuery>): {
   page: number
   pageSize: number
   offset: number
@@ -101,7 +56,7 @@ export function parsePagination(query: Partial<LadderQuery>): {
   return { page, pageSize, offset }
 }
 
-export function parseMinGames(query: Partial<LadderQuery>): number {
+export function ladderParseMinGames(query: Partial<LadderQuery>): number {
   let minGames = 1
   if (query.minGames !== undefined) {
     const parsed = Number(query.minGames)
@@ -110,7 +65,7 @@ export function parseMinGames(query: Partial<LadderQuery>): number {
   return minGames
 }
 
-export function parseProvidedSeason(query: Partial<LadderQuery>): number | undefined {
+export function ladderParseProvidedSeason(query: Partial<LadderQuery>): number | undefined {
   const providedSeason = query.season ? Number(query.season) : undefined
   if (providedSeason !== undefined && (Number.isNaN(providedSeason) || providedSeason <= 0)) {
     throw createError({
@@ -121,14 +76,14 @@ export function parseProvidedSeason(query: Partial<LadderQuery>): number | undef
   return providedSeason
 }
 
-export function buildSearchCondition(search: string): WhereCondition | undefined {
+export function ladderBuildSearchCondition(search: string): WhereCondition | undefined {
   const s = search.toString().trim().toLowerCase()
   if (s.length === 0) return undefined
   const pattern = `%${s}%`
   return sql`LOWER(${tables.players.name}) LIKE ${pattern}` as unknown as WhereCondition
 }
 
-export function getTotalGamesExpr(mmrType: 'solo' | 'team') {
+export function ladderGetTotalGamesExpr(mmrType: 'solo' | 'team') {
   const soloGamesSum = sql<number>`
     (${tables.playersStats['1X11']} + ${tables.playersStats['1X12']} + ${tables.playersStats['1X13']} +
      ${tables.playersStats['1X14']} + ${tables.playersStats['1X15']} + ${tables.playersStats['1X16']} +
@@ -148,7 +103,7 @@ export function getTotalGamesExpr(mmrType: 'solo' | 'team') {
   return mmrType === 'solo' ? soloGamesSum : teamGamesSum
 }
 
-export function getTotalWinsExpr(mmrType: 'solo' | 'team') {
+export function ladderGetTotalWinsExpr(mmrType: 'solo' | 'team') {
   const soloWinsSum = sql<number>`
     (${tables.playersStats['1X11W']} + ${tables.playersStats['1X12W']} + ${tables.playersStats['1X13W']} +
      ${tables.playersStats['1X14W']} + ${tables.playersStats['1X15W']} + ${tables.playersStats['1X16W']} +
@@ -168,7 +123,10 @@ export function getTotalWinsExpr(mmrType: 'solo' | 'team') {
   return mmrType === 'solo' ? soloWinsSum : teamWinsSum
 }
 
-export async function resolveSeasonId(db: DB, providedSeason?: number): Promise<number> {
+export async function ladderResolveSeasonId(
+  db: LadderDB,
+  providedSeason?: number
+): Promise<number | null> {
   if (providedSeason) {
     const seasonExists = await db
       .select({ id: tables.seasons.id })
@@ -176,11 +134,9 @@ export async function resolveSeasonId(db: DB, providedSeason?: number): Promise<
       .where(eq(tables.seasons.id, providedSeason))
       .limit(1)
 
-    const id = seasonExists[0]?.id
-    return id || 1
+    return seasonExists[0]?.id ?? null
   }
 
-  // active first
   const activeSeason = await db
     .select({ id: tables.seasons.id })
     .from(tables.seasons)
@@ -188,15 +144,14 @@ export async function resolveSeasonId(db: DB, providedSeason?: number): Promise<
     .orderBy(desc(tables.seasons.id))
     .limit(1)
 
-  let seasonId = activeSeason[0]?.id
-  if (!seasonId) {
-    const latestSeason = await db
-      .select({ id: tables.seasons.id })
-      .from(tables.seasons)
-      .orderBy(desc(tables.seasons.id))
-      .limit(1)
-    seasonId = latestSeason[0]?.id
-  }
+  const activeId = activeSeason[0]?.id
+  if (activeId) return activeId
 
-  return seasonId ?? 1
+  const latestSeason = await db
+    .select({ id: tables.seasons.id })
+    .from(tables.seasons)
+    .orderBy(desc(tables.seasons.id))
+    .limit(1)
+
+  return latestSeason[0]?.id ?? null
 }

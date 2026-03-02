@@ -173,7 +173,7 @@ export default defineEventHandler(async (event) => {
         const content = fs.readFileSync(iniPath, 'utf-8')
         const match = content.match(/api_secret\s*=\s*["']?([^"'\n]+)["']?/)
         if (match) {
-          fileSecret = match[1]
+          fileSecret = match[1] ?? ''
         }
       }
     } catch {

@@ -1,4 +1,5 @@
 import type { MmrType, SortDir, RelicApiResult, PlayerProfile } from '~~/shared/types/relic-api'
+export type { LeaderboardStat, PlayerProfile, PlayerStatsResponse } from '~~/shared/types/relic-api'
 
 export interface LadderItem {
   rank: number

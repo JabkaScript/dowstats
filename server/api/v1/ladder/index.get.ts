@@ -293,7 +293,7 @@ export default defineEventHandler(async (event) => {
         ]
         let best = { raceId: 0, games: -1 }
         for (let i = 0; i < sums.length; i++) {
-          const games = sums[i]
+          const games = sums[i] ?? 0
           if (games > best.games) best = { raceId: i + 1, games }
         }
         if (best.raceId > 0) favoriteByPlayer.set(pid, best)
