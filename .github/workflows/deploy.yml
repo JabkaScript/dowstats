@@ -31,9 +31,17 @@ jobs:
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
-          password: ${{ secrets.VPS_PASSWORD }}
+          key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             docker pull ${{ secrets.DOCKER_USERNAME }}/dowstats:latest
             docker stop dowstats || true
             docker rm dowstats || true
-            docker run -d --name dowstats -p 3000:3000 ${{ secrets.DOCKER_USERNAME }}/dowstats:latest
+            docker run -d \
+              --name dowstats \
+              -p 3000:3000 \
+              -e NUXT_DB_HOST=${{ secrets.NUXT_DB_HOST }} \
+              -e NUXT_DB_PORT=${{ secrets.NUXT_DB_PORT }} \
+              -e NUXT_DB_USER=${{ secrets.NUXT_DB_USER }} \
+              -e NUXT_DB_PASSWORD=${{ secrets.NUXT_DB_PASSWORD }} \
+              -e NUXT_DB_NAME=${{ secrets.NUXT_DB_NAME }} \
+              ${{ secrets.DOCKER_USERNAME }}/dowstats:latest
